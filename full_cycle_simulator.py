@@ -472,6 +472,17 @@ def simulate_scbc_orc_cycle(params):
     else:
         print("\n部分SCBC功率未计算 (迭代后)，无法得到SCBC净功和效率。")
 
+    # 确保中间结果存在
+    if "intermediate_results" not in params:
+        print("警告: intermediate_results 缺失，可能无法进行ORC仿真。")
+        return scbc_states, None
+
+    # 确保从SCBC传递到ORC的热量存在
+    Q_GO_to_ORC_J_s = params["intermediate_results"].get("Q_GO_to_ORC_J_s")
+    if not Q_GO_to_ORC_J_s:
+        print("警告: Q_GO_to_ORC_J_s 缺失，无法进行ORC仿真。")
+        return scbc_states, None
+
 
     # --- 调用ORC仿真 ---
     W_net_orc_MW = 0  # 初始化ORC净功为0，以防ORC仿真失败或跳过
@@ -584,7 +595,10 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
         T_o1_K_saturated = state_o1_pump_in.T
         print(f"  计算得到的该压力下饱和温度为: {T_o1_K_saturated - 273.15:.2f} °C (参数中T_pump_in_C_orc参考值: {T_pump_in_C_orc:.2f} °C)")
         if abs(T_o1_K_saturated - T_o1_K_param) > 0.1: # 如果差异大于0.1K
-             print(f"  注意: 参数文件中的泵进口温度 {T_pump_in_C_orc:.2f}°C 与计算得到的饱和温度 {T_o1_K_saturated - 273.15:.2f}°C 不完全一致。脚本将使用饱和液体状态。")
+         try:
+              print(f"  注意: 参数文件中的泵进口温度 {T_pump_in_C_orc:.2f}°C 与计算得到的饱和温度 {T_o1_K_saturated - 273.15:.2f}°C 不完全一致。脚本将使用饱和液体状态。")
+         except Exception as e:
+              print(f"  警告: 打印泵进口温度时出错: {e}。")
     
     state_o1_pump_in.m_dot = m_dot_orc_kg_s_initial_guess # 假设的ORC流量
 
@@ -685,7 +699,10 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
                  print(f"  蒸发压力: {P_eva_orc_kPa_assumed} kPa (Tsat={T_sat_orc_eva_K-273.15:.2f}°C)")
                  print(f"  SCBC热源进口T: {T_scbc_go_hot_in_K-273.15:.2f}°C. ORC出口目标T被限制为: {T_o3_final_target_K-273.15:.2f}°C")
                  if T_o3_final_target_K <= T_sat_orc_eva_K: # 如果限制后的温度还是不够高
-                     print(f"错误: ORC出口目标温度 {T_o3_final_target_K-273.15:.2f}°C 不高于饱和温度 {T_sat_orc_eva_K-273.15:.2f}°C。请检查参数。")
+                     try:
+                         print(f"错误: ORC出口目标温度 {T_o3_final_target_K-273.15:.2f}°C 不高于饱和温度 {T_sat_orc_eva_K-273.15:.2f}°C。请检查参数。")
+                     except Exception as e:
+                         print(f"  警告: 打印ORC出口目标温度时出错: {e}。")
                      # return None # 或者设置一个略高于饱和的温度继续尝试
                      T_o3_final_target_K = T_sat_orc_eva_K + 0.1 # 强制微小过热
     else: # T_sat_orc_eva_K is None, should not happen if P_eva is valid
@@ -696,7 +713,7 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
 
     # 迭代调整ORC质量流量 m_dot_orc，以满足蒸发器出口温度约束
     m_dot_orc_current_kg_s = m_dot_orc_kg_s_initial_guess
-    max_iter_orc_mdot = orc_params.get("max_iter_orc_mdot", 20)
+    max_iter_orc_mdot = orc_params.get("max_iter_orc_mdot", 40)
     tol_orc_T_approach = orc_params.get("tol_orc_T_approach_K", 0.5) # 0.5 K 容差
     m_dot_adj_factor_high = 1.05 # 流量调整因子（当温度过高时增加流量）
     m_dot_adj_factor_low = 0.95  # 流量调整因子（当温度过低时减少流量）
@@ -705,6 +722,8 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
 
     state_o3_eva_out = None
     converged_orc_mdot = False
+    
+    prev_T_err_K = 0 # 初始化前一次迭代的误差
 
     print(f"  开始迭代调整ORC流量以匹配蒸发器出口温度目标 {T_o3_final_target_K-273.15:.2f}°C...")
 

@@ -1,4 +1,5 @@
 import json
+import contextlib
 from state_point_calculator import StatePoint, to_kelvin, to_pascal
 from cycle_components import (
     model_compressor_MC,
@@ -918,10 +919,25 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
     }
 
 
+import sys
+
+def output_to_file(filename, code):
+    original_stdout = sys.stdout
+    with open(filename, 'w', encoding='utf-8') as f:
+        sys.stdout = f
+        try:
+            code()
+        finally:
+            sys.stdout = original_stdout
+
 if __name__ == '__main__':
-    cycle_params = load_cycle_parameters()
-    if cycle_params:
-        simulate_scbc_orc_cycle(cycle_params)
+    def main():
+        cycle_params = load_cycle_parameters()
+        if cycle_params:
+            simulate_scbc_orc_cycle(cycle_params)
+
+    main()
+    output_to_file("full_cycle_simulator_output.txt", main)
 
 
 """

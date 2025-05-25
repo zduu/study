@@ -1,0 +1,349 @@
+成功从 cycle_setup_parameters.json 加载循环参数。
+
+--- 开始SCBC/ORC联合循环仿真 ---
+使用的设定参数:
+
+SCBC主要参数:
+  T5 (透平入口温度): 599.85 °C
+  PR (主循环压比): 3.27
+  η_T (SCBC透平效率): 0.9
+  η_C (SCBC压缩机效率): 0.85
+
+--- SCBC循环计算开始 ---
+初始状态点1 (主压缩机进口):
+状态点: P1_MC_In (CO2)
+  P = 7.400 MPa
+  T = 35.00 °C
+  h = 402.40 kJ/kg
+  s = 1.6634 kJ/kgK
+  d = 259.77 kg/m³
+  e = 200.34 kJ/kg
+  Q = N/A
+  m_dot = 1945.09 kg/s
+
+计算得到状态点2 (主压缩机出口):
+状态点: P1_MC_In (CO2)
+  P = 24.198 MPa
+  T = 121.73 °C
+  h = 453.36 kJ/kg
+  s = 1.6829 kJ/kgK
+  d = 484.27 kg/m³
+  e = 245.79 kJ/kg
+  Q = 过热/超临界
+  m_dot = 1945.09 kg/s
+主压缩机MC耗功: 50.95 kJ/kg, 总功率: 99.11 MW
+对比论文表10 - 点2:
+  计算 T2: 121.73°C (论文: 121.73°C)
+  计算 h2: 453.36 kJ/kg (论文: 453.36 kJ/kg)
+
+--- 开始SCBC高温侧迭代计算 ---
+
+SCBC主回路迭代 1/20:
+  LTR 热流进口 (state7_iter): T=306.16°C, h=761.08kJ/kg
+  LTR 热出口 (state8_calc_ltr): T=147.55°C, h=582.07kJ/kg
+  LTR 冷出口 (state_ltr_cold_out): T=281.92°C, h=696.45kJ/kg
+  RC 出口 (state_rc_out): T=281.93°C, h=696.47kJ/kg
+  混合点3 (state3_calc): T=281.92°C, h=696.46kJ/kg, m=2641.42kg/s
+  HTR 热流进口 (state6_iter): T=455.03°C, h=932.38kJ/kg
+  HTR 热出口 (state7_new): T=306.15°C, h=761.08kJ/kg
+  HTR 冷出口 (state4_htr_cold_out): T=417.94°C, h=867.76kJ/kg
+  ER 出口 (state5_er_out): T=599.85°C, h=1094.91kJ/kg
+  透平出口 (state6_new): T=455.03°C, h=932.38kJ/kg
+  收敛检查: Δh6=0.0009 kJ/kg, Δh7=0.0059 kJ/kg (目标 < 0.1 kJ/kg)
+SCBC主回路在迭代 1 次后收敛。
+
+--- SCBC高温侧迭代计算结束 ---
+最终计算得到的SCBC状态点（迭代后）:
+点6 (HTR热进口/透平出口):
+状态点: P3_Mixed_Iter1_out_HTR_Iter1_out_ER_Iter1 (CO2)
+  P = 7.400 MPa
+  T = 455.03 °C
+  h = 932.38 kJ/kg
+  s = 2.7991 kJ/kgK
+  d = 53.62 kg/m³
+  e = 409.23 kJ/kg
+  Q = 过热/超临界
+  m_dot = 2641.42 kg/s
+点7 (LTR热进口/HTR热出口):
+状态点: P6_Iter_HTR_HotIn_out_HTR_Iter1 (CO2)
+  P = 7.400 MPa
+  T = 306.15 °C
+  h = 761.08 kJ/kg
+  s = 2.5362 kJ/kgK
+  d = 69.04 kg/m³
+  e = 312.28 kJ/kg
+  Q = N/A
+  m_dot = 2641.42 kg/s
+点3 (HTR冷进口/混合点):
+状态点: P3_Mixed_Iter1 (CO2)
+  P = 24.198 MPa
+  T = 281.92 °C
+  h = 696.46 kJ/kg
+  s = 2.2062 kJ/kgK
+  d = 242.58 kg/m³
+  e = 340.95 kJ/kg
+  Q = 过热/超临界
+  m_dot = 2641.42 kg/s
+点4 (ER进口/HTR冷出口):
+状态点: P3_Mixed_Iter1_out_HTR_Iter1 (CO2)
+  P = 24.198 MPa
+  T = 417.94 °C
+  h = 867.76 kJ/kg
+  s = 2.4824 kJ/kgK
+  d = 182.02 kg/m³
+  e = 434.16 kJ/kg
+  Q = 过热/超临界
+  m_dot = 2641.42 kg/s
+点5 (透平进口/ER出口):
+状态点: P3_Mixed_Iter1_out_HTR_Iter1_out_ER_Iter1 (CO2)
+  P = 24.198 MPa
+  T = 599.85 °C
+  h = 1094.91 kJ/kg
+  s = 2.7741 kJ/kgK
+  d = 139.89 kg/m³
+  e = 578.85 kJ/kg
+  Q = N/A
+  m_dot = 2641.42 kg/s
+点8 (LTR热出口):
+状态点: P7_Iter_LTR_HotIn_out_LTR_Iter1 (CO2)
+  P = 7.400 MPa
+  T = 147.55 °C
+  h = 582.07 kJ/kg
+  s = 2.1749 kJ/kgK
+  d = 104.46 kg/m³
+  e = 235.41 kJ/kg
+  Q = N/A
+  m_dot = 2641.42 kg/s
+LTR冷出口 (去混合点):
+状态点: P1_MC_In_out_LTR_Iter1 (CO2)
+  P = 24.198 MPa
+  T = 281.92 °C
+  h = 696.45 kJ/kg
+  s = 2.2061 kJ/kgK
+  d = 242.58 kg/m³
+  e = 340.95 kJ/kg
+  Q = 过热/超临界
+  m_dot = 1945.09 kg/s
+RC出口 (去混合点):
+状态点: P8r_RC_In_Iter1 (CO2)
+  P = 24.198 MPa
+  T = 281.93 °C
+  h = 696.47 kJ/kg
+  s = 2.2062 kJ/kgK
+  d = 242.58 kg/m³
+  e = 340.96 kJ/kg
+  Q = 过热/超临界
+  m_dot = 696.33 kg/s
+SCBC透平做功 (迭代后): 162.53 kJ/kg, 总功率: 429.31 MW
+再压缩机RC耗功 (迭代后): 114.40 kJ/kg, 总功率: 79.66 MW
+吸热器ER吸收热量 Q_ER (迭代后): 600.00 MW
+
+--- SCBC低温侧计算 ---
+
+蒸发器GO SCBC热侧进口状态 (点8_go_in - 基于计算的LTR热出口状态，流量调整):
+状态点: P8_GO_HotIn (CO2)
+  P = 7.400 MPa
+  T = 147.55 °C
+  h = 582.07 kJ/kg
+  s = 2.1749 kJ/kgK
+  d = 104.46 kg/m³
+  e = 235.41 kJ/kg
+  Q = 过热/超临界
+  m_dot = 1945.09 kg/s
+
+计算得到的蒸发器GO SCBC热侧出口状态 (点9):
+状态点: P8_GO_HotIn_out_GO_SCBC_HotSide (CO2)
+  P = 7.400 MPa
+  T = 125.25 °C
+  h = 555.74 kJ/kg
+  s = 2.1106 kJ/kgK
+  d = 113.94 kg/m³
+  e = 227.26 kJ/kg
+  Q = N/A
+  m_dot = 1945.09 kg/s
+蒸发器GO SCBC热侧放出热量 Q_GO_SCBC: 51.23 MW (此热量被ORC吸收)
+对比论文表10 - 点9 (GO SCBC热出口):
+  计算 T9: 125.25°C (论文: 125.25°C)
+  计算 h9: 555.74 kJ/kg (论文: 460.95 kJ/kg)
+  计算 m_dot9: 1945.09 kg/s (论文: 1945.09 kg/s, MC流量: 1945.09 kg/s)
+
+--- 主冷却器 (CS) 计算 ---
+
+计算得到的主冷却器CS出口状态 (应接近初始点1):
+状态点: P8_GO_HotIn_out_GO_SCBC_HotSide_out_CS (CO2)
+  P = 7.400 MPa
+  T = 35.00 °C
+  h = 402.40 kJ/kg
+  s = 1.6634 kJ/kgK
+  d = 259.77 kg/m³
+  e = 200.34 kJ/kg
+  Q = N/A
+  m_dot = 1945.09 kg/s
+主冷却器CS放出热量 Q_CS: 298.24 MW
+
+SCBC循环闭合检查 (点1 - 主压缩机进口):
+  初始定义的 state1: T=35.00°C, P=7400.00 kPa, h=402.40 kJ/kg
+  CS计算出口 state1_cs_out_calc: T=35.00°C, P=7400.00 kPa, h=402.40 kJ/kg
+  差异: ΔT=0.000 K, ΔP=0.000 kPa (预期接近0, 因P_low_cycle ≈ P1_param), Δh=0.000 kJ/kg
+
+SCBC净输出功 (初步): 250.54 MW
+SCBC吸热器吸热量 Q_ER: 600.00 MW
+SCBC热效率 (初步, W_net/Q_ER): 41.76%
+
+--- SCBC循环单次计算完成 (未进行迭代收敛) ---
+后续需要加入迭代逻辑使state6和state7收敛，并完成ORC侧计算。
+
+SCBC净输出功 (迭代后): 250.54 MW
+SCBC吸热器吸热量 Q_ER (迭代后): 600.00 MW
+SCBC热效率 (迭代后, W_net/Q_ER): 41.76%
+
+
+--- 开始ORC独立循环仿真 ---
+ORC工质: R245fa
+接收来自SCBC的热量 Q_eva_orc: 51.23 MW
+SCBC侧GO热源温度范围: 147.55°C (进口) to 125.25°C (出口)
+
+ORC主要参数:
+  冷凝压力 P_cond: 445.1 kPa
+  泵进口温度 T_pump_in: 58.66 °C
+  泵效率 η_P_orc: 0.8
+  透平效率 η_T_orc: 0.85
+  蒸发器出口目标过热度: 20.96 K
+  蒸发器与热源最小接近温差: 5.0 K
+  ORC初始估算流量: 100.0 kg/s (待优化)
+信息: 将ORC泵进口 (点o1) 设置为在压力 445.1 kPa 下的饱和液体状态 (Q=0)。
+  计算得到的该压力下饱和温度为: 58.66 °C (参数中T_pump_in_C_orc参考值: 58.66 °C)
+
+ORC状态点o1 (泵进口):
+状态点: P_o1_PumpIn (R245fa)
+  P = 0.445 MPa
+  T = 58.66 °C
+  h = 278.86 kJ/kg
+  s = 1.2605 kJ/kgK
+  d = 1241.09 kg/m³
+  e = 5.46 kJ/kg
+  Q = 0.0000
+  m_dot = 100.00 kg/s
+
+计算得到ORC泵出口状态 (点o2 - 蒸发器进口):
+状态点: P_o1_PumpIn (R245fa)
+  P = 1.500 MPa
+  T = 59.32 °C
+  h = 279.92 kJ/kg
+  s = 1.2611 kJ/kgK
+  d = 1244.27 kg/m³
+  e = 6.34 kJ/kg
+  Q = 过热/超临界
+  m_dot = 100.00 kg/s
+ORC泵耗功: 1.06 kJ/kg, 总功率: 0.106 MW
+
+--- ORC蒸发器 (GO) 计算 ---
+  ORC蒸发压力 (假设): 1500.0 kPa (饱和温度: 107.82°C)
+  ORC侧进口: 点o2 (来自泵出口)
+  SCBC热源进口温度 (参考): 147.55°C
+  SCBC热源出口温度 (参考): 125.25°C
+  ORC侧最终目标出口温度 (考虑过热和热源限制): 128.78°C
+  修正后的ORC蒸发器最终目标出口温度: 128.78°C
+  开始迭代调整ORC流量以匹配蒸发器出口温度目标 128.78°C...
+  Iter 1/40: m_dot=100.00 kg/s, T_o3=352.74°C, Target T_o3=128.78°C, Err=223.96K, Q=-1.0000, ProperState=True
+  Iter 2/40: m_dot=105.00 kg/s, T_o3=334.93°C, Target T_o3=128.78°C, Err=206.15K, Q=-1.0000, ProperState=True
+  Iter 3/40: m_dot=110.25 kg/s, T_o3=317.74°C, Target T_o3=128.78°C, Err=188.96K, Q=-1.0000, ProperState=True
+  Iter 4/40: m_dot=115.76 kg/s, T_o3=301.14°C, Target T_o3=128.78°C, Err=172.36K, Q=-1.0000, ProperState=True
+  Iter 5/40: m_dot=121.55 kg/s, T_o3=285.12°C, Target T_o3=128.78°C, Err=156.34K, Q=-1.0000, ProperState=True
+  Iter 6/40: m_dot=127.63 kg/s, T_o3=269.65°C, Target T_o3=128.78°C, Err=140.87K, Q=-1.0000, ProperState=True
+  Iter 7/40: m_dot=134.01 kg/s, T_o3=254.74°C, Target T_o3=128.78°C, Err=125.96K, Q=-1.0000, ProperState=True
+  Iter 8/40: m_dot=140.71 kg/s, T_o3=240.37°C, Target T_o3=128.78°C, Err=111.59K, Q=-1.0000, ProperState=True
+  Iter 9/40: m_dot=147.75 kg/s, T_o3=226.52°C, Target T_o3=128.78°C, Err=97.75K, Q=-1.0000, ProperState=True
+  Iter 10/40: m_dot=155.13 kg/s, T_o3=213.21°C, Target T_o3=128.78°C, Err=84.43K, Q=-1.0000, ProperState=True
+  Iter 11/40: m_dot=162.89 kg/s, T_o3=200.41°C, Target T_o3=128.78°C, Err=71.63K, Q=-1.0000, ProperState=True
+  Iter 12/40: m_dot=171.03 kg/s, T_o3=188.13°C, Target T_o3=128.78°C, Err=59.35K, Q=-1.0000, ProperState=True
+  Iter 13/40: m_dot=179.59 kg/s, T_o3=176.38°C, Target T_o3=128.78°C, Err=47.60K, Q=-1.0000, ProperState=True
+  Iter 14/40: m_dot=188.56 kg/s, T_o3=165.15°C, Target T_o3=128.78°C, Err=36.38K, Q=-1.0000, ProperState=True
+  Iter 15/40: m_dot=197.99 kg/s, T_o3=154.46°C, Target T_o3=128.78°C, Err=25.68K, Q=-1.0000, ProperState=True
+  Iter 16/40: m_dot=207.89 kg/s, T_o3=144.32°C, Target T_o3=128.78°C, Err=15.54K, Q=-1.0000, ProperState=True
+  Iter 17/40: m_dot=218.29 kg/s, T_o3=134.74°C, Target T_o3=128.78°C, Err=5.96K, Q=-1.0000, ProperState=True
+  Iter 18/40: m_dot=229.20 kg/s, T_o3=125.75°C, Target T_o3=128.78°C, Err=-3.03K, Q=-1.0000, ProperState=True
+  Iter 19/40: m_dot=217.74 kg/s, T_o3=135.22°C, Target T_o3=128.78°C, Err=6.44K, Q=-1.0000, ProperState=True
+  Iter 20/40: m_dot=228.63 kg/s, T_o3=126.20°C, Target T_o3=128.78°C, Err=-2.58K, Q=-1.0000, ProperState=True
+  Iter 21/40: m_dot=217.20 kg/s, T_o3=135.70°C, Target T_o3=128.78°C, Err=6.92K, Q=-1.0000, ProperState=True
+  Iter 22/40: m_dot=228.06 kg/s, T_o3=126.65°C, Target T_o3=128.78°C, Err=-2.13K, Q=-1.0000, ProperState=True
+  Iter 23/40: m_dot=216.65 kg/s, T_o3=136.18°C, Target T_o3=128.78°C, Err=7.40K, Q=-1.0000, ProperState=True
+  Iter 24/40: m_dot=227.49 kg/s, T_o3=127.10°C, Target T_o3=128.78°C, Err=-1.68K, Q=-1.0000, ProperState=True
+  Iter 25/40: m_dot=216.11 kg/s, T_o3=136.66°C, Target T_o3=128.78°C, Err=7.88K, Q=-1.0000, ProperState=True
+  Iter 26/40: m_dot=226.92 kg/s, T_o3=127.55°C, Target T_o3=128.78°C, Err=-1.23K, Q=-1.0000, ProperState=True
+  Iter 27/40: m_dot=215.57 kg/s, T_o3=137.14°C, Target T_o3=128.78°C, Err=8.37K, Q=-1.0000, ProperState=True
+  Iter 28/40: m_dot=226.35 kg/s, T_o3=128.00°C, Target T_o3=128.78°C, Err=-0.78K, Q=-1.0000, ProperState=True
+  Iter 29/40: m_dot=215.03 kg/s, T_o3=137.63°C, Target T_o3=128.78°C, Err=8.85K, Q=-1.0000, ProperState=True
+  Iter 30/40: m_dot=225.79 kg/s, T_o3=128.46°C, Target T_o3=128.78°C, Err=-0.32K, Q=-1.0000, ProperState=True
+  ORC流量迭代收敛于 m_dot=225.79 kg/s, T_o3=128.46°C.
+
+ORC泵出口状态 (点o2 - 流量更新后):
+状态点: _temp_pump_in_recalc (R245fa)
+  P = 1.500 MPa
+  T = 59.32 °C
+  h = 279.92 kJ/kg
+  s = 1.2611 kJ/kgK
+  d = 1244.27 kg/m³
+  e = 6.34 kJ/kg
+  Q = 过热/超临界
+  m_dot = 225.79 kg/s
+ORC泵耗功 (流量更新后): 1.06 kJ/kg, 总功率: 0.240 MW
+最终警告: ORC蒸发器出口为两相流 (Q=-1.000)，T=128.46°C。透平进口通常需要过热蒸汽。
+
+计算得到的ORC蒸发器出口状态 (点o3 - 透平进口, 流量迭代后):
+状态点: P_o3_Iter30 (R245fa)
+  P = 1.500 MPa
+  T = 128.46 °C
+  h = 506.81 kJ/kg
+  s = 1.8678 kJ/kgK
+  d = 76.02 kg/m³
+  e = 61.70 kJ/kg
+  Q = 过热/超临界
+  m_dot = 225.79 kg/s
+ORC蒸发器实际吸热量 (流量迭代后): 51.23 MW (应等于来自SCBC的 51.23 MW)
+
+计算得到的ORC透平出口状态 (点o4 - 冷凝器进口):
+状态点: P_o3_Iter30 (R245fa)
+  P = 0.445 MPa
+  T = 94.32 °C
+  h = 485.63 kJ/kg
+  s = 1.8781 kJ/kgK
+  d = 21.13 kg/m³
+  e = 37.63 kJ/kg
+  Q = 过热/超临界
+  m_dot = 225.79 kg/s
+ORC透平做功: 21.18 kJ/kg, 总功率: 4.78 MW
+信息: 冷却器 COND_ORC 目标为饱和液体，将使用 P, Q=0 设置出口状态。
+
+计算得到的ORC冷凝器出口状态 (应接近初始点o1):
+状态点: P_o1_CondOut_Final (R245fa)
+  P = 0.445 MPa
+  T = 58.66 °C
+  h = 278.86 kJ/kg
+  s = 1.2605 kJ/kgK
+  d = 1241.09 kg/m³
+  e = 5.46 kJ/kg
+  Q = 0.0000
+  m_dot = 225.79 kg/s
+ORC冷凝器放出热量 Q_COND_ORC: 46.69 MW
+
+ORC净输出功: 4.54 MW
+ORC吸热量 (来自SCBC): 51.23 MW
+ORC热效率 (W_net_orc / Q_in_orc): 8.87%
+
+--- ORC独立循环初步计算完成 ---
+注意: ORC流量和蒸发压力为假设值，实际需要迭代优化以满足能量平衡和温差约束。
+
+--- ORC独立循环仿真完成 ---
+ORC净输出功: 4.54 MW
+ORC热效率: 8.87%
+
+
+--- 联合循环总性能 ---
+SCBC净输出功: 250.54 MW
+ORC净输出功: 4.54 MW
+联合循环总净输出功: 255.09 MW
+总输入热量 (SCBC ER): 600.00 MW
+联合循环总热效率: 42.51%
+
+--- SCBC/ORC联合循环仿真结束 ---

@@ -228,8 +228,8 @@ if __name__ == "__main__":
         print(f"\n导出到CSV文件时出错: {e_csv}")
 
     # --- (可选) 调用T0/P0反推函数 ---
-    # print("\n尝试执行T0/P0反推...")
-    # run_t0_p0_fitting() 
+    print("\n尝试执行T0/P0反推...")
+    run_t0_p0_fitting() 
 
     # --- 输出循环设定参数到JSON文件 ---
     print("\n--- 正在输出循环设定参数到 cycle_setup_parameters.json ---")

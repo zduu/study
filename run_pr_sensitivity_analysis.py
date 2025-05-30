@@ -133,7 +133,7 @@ def main():
 
                     # SCBC净输出功 (迭代收敛后): 100.00 MW
                     # 或者 SCBC净输出功: 100.00 MW (如果迭代部分不出现)
-                    scbc_match = re.search(r"SCBC净输出功(?:\s*\(迭代收敛后\))?:\s*([\d\.]+)\s*MW", output_text)
+                    scbc_match = re.search(r"SCBC净输出功 \(迭代收敛后\):\s*([\d\.]+)\s*MW", output_text)
                     if scbc_match:
                         scbc_power = scbc_match.group(1)
                     else:

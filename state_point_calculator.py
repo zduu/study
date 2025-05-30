@@ -188,10 +188,9 @@ if __name__ == "__main__":
 
     output_csv_data = []
     csv_header = [
-        "PointName", "Fluid", "P_kPa_paper", "T_C_paper", "h_kJ_kg_paper", 
-        "s_kJ_kgK_paper", "e_kJ_kg_paper", "m_dot_kg_s", "P_Pa_calc", "T_K_calc", 
-        "h_J_kg_calc", "s_J_kgK_calc", "d_kg_m3_calc", "e_J_kg_calc",
-        "e_kJ_kg_calc", "e_diff_kJ_kg"
+        "PointName", "Fluid", "P_kPa_input", "T_C_input", "h_kJ_kg_paper", 
+        "s_kJ_kgK_paper", "e_kJ_kg_paper", "m_dot_kg_s", "h_J_kg_calc", "s_J_kgK_calc", 
+        "d_kg_m3_calc", "e_J_kg_calc", "e_kJ_kg_calc", "e_diff_kJ_kg"
     ]
     output_csv_data.append(csv_header)
 
@@ -211,7 +210,7 @@ if __name__ == "__main__":
         print(f"{name:<18} {fluid:<6} {p_kpa:>8.2f} {t_c:>7.2f} {current_state.h/1000 if current_state.h else 'N/A':>10.2f} {current_state.s/1000 if current_state.s else 'N/A':>10.4f} {m_dot_kg_s:>12.2f} {e_calc_kj:>14.2f} {e_kj_kg_paper:>14.2f} {e_diff_kj:>14.2f}")
         csv_row = [
             name, fluid, p_kpa, t_c, h_kj_kg_paper, s_kj_kgk_paper, e_kj_kg_paper, m_dot_kg_s,
-            current_state.P, current_state.T, current_state.h, current_state.s, 
+            current_state.h, current_state.s, 
             current_state.d, current_state.e, e_calc_kj, e_diff_kj
         ]
         output_csv_data.append(csv_row)

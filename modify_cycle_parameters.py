@@ -93,18 +93,21 @@ def update_cycle_parameters(
         print(f"错误: 无法写入参数文件 {params_filepath}。")
 
 if __name__ == "__main__":
-    # 示例用法：
-    # 您可以修改这些值，或者从命令行参数、用户输入等方式获取
-    example_new_t5_c = 550 # 新的SCBC透平入口温度 (°C)
-    example_new_pr_scbc = 3   # 新的SCBC主循环压比
-    example_new_pr_orc = 3    # 新的ORC透平膨胀比
-    example_new_theta_w_orc_c = 127.76 # 新的ORC透平入口温度 (°C)
+    import argparse
 
-    print("开始修改循环参数...")
+    parser = argparse.ArgumentParser(description="修改循环参数配置文件 (cycle_setup_parameters.json)。")
+    parser.add_argument("--t5_c", type=float, required=True, help="新的SCBC透平入口温度 (°C)")
+    parser.add_argument("--pr_scbc", type=float, required=True, help="新的SCBC主循环压比")
+    parser.add_argument("--pr_orc", type=float, required=True, help="新的ORC透平膨胀比")
+    parser.add_argument("--theta_w_c", type=float, required=True, help="新的ORC透平入口温度 (°C)")
+
+    args = parser.parse_args()
+
+    print("开始通过命令行参数修改循环参数...")
     update_cycle_parameters(
-        new_t5_c=example_new_t5_c,
-        new_pr_scbc=example_new_pr_scbc,
-        new_pr_orc=example_new_pr_orc,
-        new_theta_w_orc_c=example_new_theta_w_orc_c
+        new_t5_c=args.t5_c,
+        new_pr_scbc=args.pr_scbc,
+        new_pr_orc=args.pr_orc,
+        new_theta_w_orc_c=args.theta_w_c
     )
     print("参数修改脚本执行完毕。")

@@ -42,30 +42,46 @@ def plot_pr_sensitivity(csv_filepath='pr_sensitivity_results.csv', output_filena
     ax1.tick_params(axis='x', labelsize=12)
 
     # 4. 次Y轴 (右侧) - SCBC净功 和 ORC净功
-    ax2 = ax1.twinx()  # 共享X轴
+    ax2 = ax1.twinx()  # 第一个次Y轴 (SCBC)
+    ax3 = ax1.twinx()  # 第二个次Y轴 (ORC)
+
+    # 配置第二个次Y轴 (ax3 for ORC) 使其不与第一个次Y轴 (ax2) 重叠
+    ax3.spines["right"].set_position(("outward", 60)) # 向右偏移60个点
+
     color_scbc_power = 'tab:blue'
     color_orc_power = 'tab:green'
-    ax2.set_ylabel("净输出功率 (MW)", fontsize=14) # 共享标签
 
+    # 配置 ax2 (SCBC净功)
+    ax2.set_ylabel("SCBC净功 Ps (MW)", color=color_scbc_power, fontsize=14)
     line2 = ax2.plot(x_data, df["SCBC_Net_Power_MW"], color=color_scbc_power, marker='s', linestyle='--', label="SCBC净功 Ps (MW)")
-    line3 = ax2.plot(x_data, df["ORC_Net_Power_MW"], color=color_orc_power, marker='^', linestyle=':', label="ORC净功 Po (MW)")
-    ax2.tick_params(axis='y', labelsize=12) # 右侧Y轴刻度颜色默认为黑色
+    ax2.tick_params(axis='y', labelcolor=color_scbc_power, labelsize=12)
+
+    # 配置 ax3 (ORC净功)
+    ax3.set_ylabel("ORC净功 Po (MW)", color=color_orc_power, fontsize=14)
+    line3 = ax3.plot(x_data, df["ORC_Net_Power_MW"], color=color_orc_power, marker='^', linestyle=':', label="ORC净功 Po (MW)")
+    ax3.tick_params(axis='y', labelcolor=color_orc_power, labelsize=12)
 
     # 统一Y轴刻度格式，例如保留两位小数
     ax1.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.2f'))
     ax2.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.2f'))
+    ax3.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.2f'))
 
     # 5. 添加图表标题和图例
-    plt.title("顶循环压比对联合循环性能的影响", fontsize=16)
+    plt.title("顶循环压比对联合循环性能的影响 (三Y轴)", fontsize=16) # 更新标题以反映变化
     
     # 合并图例
-    lines = line1 + line2 + line3
+    # 需要确保从正确的axes获取lines，或者直接使用plot返回的line对象
+    lines = line1 + line2 + line3 # line1, line2, line3 已被正确定义
     labels = [l.get_label() for l in lines]
-    ax1.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True, ncol=3, fontsize=10)
+    # 调整图例位置和列数，可能需要根据实际显示效果微调
+    ax1.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.20), fancybox=True, shadow=True, ncol=3, fontsize=10)
+
 
     # 6. 启用网格线
     ax1.grid(True, linestyle='--', alpha=0.7)
-    ax2.grid(True, linestyle='--', alpha=0.7, axis='y') # 只在Y轴上为ax2添加网格，避免与ax1的X轴网格重叠
+    # 为ax2和ax3分别在Y轴上添加网格，避免与ax1的X轴网格重叠
+    ax2.grid(True, linestyle='--', alpha=0.7, axis='y', color=color_scbc_power)
+    ax3.grid(True, linestyle='--', alpha=0.7, axis='y', color=color_orc_power)
 
     # 调整布局以防止标签重叠
     fig.tight_layout(rect=[0, 0.1, 1, 0.95]) # 调整rect以给图例留出空间

@@ -616,7 +616,7 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
     # 简化：假设一个蒸发压力，或者基于SCBC侧压力和温差进行估算。
     # 论文中ORC蒸发压力约为 2000-3000 kPa (R245fa)
     # 假设蒸发压力 P_eva_orc_kPa，这个值也应该来自参数或优化
-    P_eva_orc_kPa_assumed = orc_params.get('P_eva_kPa_orc', 2500) # 假设值
+    P_eva_orc_kPa_assumed = orc_params.get('P_eva_kPa_orc', 3000) # 假设值
     P_o2_pump_out_Pa = to_pascal(P_eva_orc_kPa_assumed, 'kpa')
     
     state_o2_pump_out, W_p_orc_J_kg = model_pump_ORC(state_o1_pump_in, P_o2_pump_out_Pa, eta_P_orc)

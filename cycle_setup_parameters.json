@@ -19,9 +19,9 @@
     },
     "orc_parameters": {
         "P_eva_kPa_orc": 1500.0,
-        "P_cond_kPa_orc": 445.1,
-        "T_pump_in_C_orc": 58.66,
-        "delta_T_superheat_orc_K": 20.96,
+        "P_cond_kPa_orc": 445.10385756676556,
+        "T_pump_in_C_orc": 58.66488108471714,
+        "delta_T_superheat_orc_K": 19.941163964276157,
         "eta_TO_turbine": 0.8,
         "eta_PO_pump": 0.75
     },

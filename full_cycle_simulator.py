@@ -425,22 +425,6 @@ def simulate_scbc_orc_cycle(params):
         "P1_CS_Out_Calculated": state1_cs_out_calc,
     }
     
-    # SCBC 净功和效率 (初步，基于单次计算，未迭代)
-    if W_t_total_MW is not None and W_mc_total_MW is not None and W_rc_total_MW is not None:
-        W_net_scbc_MW = W_t_total_MW - W_mc_total_MW - W_rc_total_MW
-        print(f"\nSCBC净输出功 (初步): {W_net_scbc_MW:.2f} MW")
-        if Q_er_calc is not None and Q_er_calc > 0: # Q_er_calc is from ER model
-            Q_in_scbc_MW = Q_er_calc / 1e6
-            eta_scbc_thermal = W_net_scbc_MW / Q_in_scbc_MW
-            print(f"SCBC吸热器吸热量 Q_ER: {Q_in_scbc_MW:.2f} MW")
-            print(f"SCBC热效率 (初步, W_net/Q_ER): {eta_scbc_thermal*100:.2f}%")
-        else:
-            print("SCBC吸热器吸热量为零或未计算，无法计算热效率。")
-    else:
-        print("\n部分功率未计算，无法得到SCBC净功和效率。")
-
-    print("\n--- SCBC循环单次计算完成 (未进行迭代收敛) ---")
-    
     # 存储 Q_go_scbc_side_J_s (SCBC侧在GO中放出的热量) 以供ORC侧使用
     # Q_go_scbc_side_J_s 是负值，表示放出。ORC吸收的热量是其绝对值。
     if Q_go_scbc_side_J_s is not None:
@@ -453,8 +437,6 @@ def simulate_scbc_orc_cycle(params):
         params["intermediate_results"]["T8_GO_HotIn_K"] = state8_go_in.T
 
 
-    print("后续需要加入迭代逻辑使state6和state7收敛，并完成ORC侧计算。")
-    
     # --- SCBC 最终性能计算 (基于迭代收敛后的值) ---
     W_net_scbc_MW_final = None
     eta_scbc_thermal_final = None
@@ -462,16 +444,16 @@ def simulate_scbc_orc_cycle(params):
 
     if W_t_total_MW is not None and W_mc_total_MW is not None and W_rc_total_MW is not None:
         W_net_scbc_MW_final = W_t_total_MW - W_mc_total_MW - W_rc_total_MW
-        print(f"\nSCBC净输出功 (迭代后): {W_net_scbc_MW_final:.2f} MW")
+        print(f"\nSCBC净输出功 (迭代收敛后): {W_net_scbc_MW_final:.2f} MW")
         if Q_er_calc is not None and Q_er_calc > 0:
             Q_in_scbc_MW_final = Q_er_calc / 1e6
             eta_scbc_thermal_final = W_net_scbc_MW_final / Q_in_scbc_MW_final
-            print(f"SCBC吸热器吸热量 Q_ER (迭代后): {Q_in_scbc_MW_final:.2f} MW")
-            print(f"SCBC热效率 (迭代后, W_net/Q_ER): {eta_scbc_thermal_final*100:.2f}%")
+            print(f"SCBC吸热器吸热量 Q_ER (迭代收敛后): {Q_in_scbc_MW_final:.2f} MW")
+            print(f"SCBC热效率 (迭代收敛后, W_net_scbc/Q_ER): {eta_scbc_thermal_final*100:.2f}%")
         else:
-            print("SCBC吸热器吸热量为零或未计算 (迭代后)，无法计算SCBC热效率。")
+            print("SCBC吸热器吸热量为零或未计算 (迭代收敛后)，无法计算SCBC热效率。")
     else:
-        print("\n部分SCBC功率未计算 (迭代后)，无法得到SCBC净功和效率。")
+        print("\n部分SCBC功率未计算 (迭代收敛后)，无法得到SCBC净功和效率。")
 
     # 确保中间结果存在
     if "intermediate_results" not in params:
@@ -712,8 +694,63 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
 
     print(f"  修正后的ORC蒸发器最终目标出口温度: {T_o3_final_target_K-273.15:.2f}°C")
 
+    # --- 新的ORC质量流量初始猜测值生成逻辑 ---
+    print("  尝试基于能量平衡计算ORC质量流量的初始猜测值...")
+    m_dot_orc_calculated_guess = None
+    if state_o2_pump_out and state_o2_pump_out.P is not None and state_o2_pump_out.h is not None and \
+       Q_from_scbc_J_s is not None and T_o3_final_target_K is not None and orc_fluid:
+        
+        # 确保 state_o2_pump_out.P 和 T_o3_final_target_K 是有效的浮点数
+        try:
+            P_eva_for_guess = float(state_o2_pump_out.P)
+            T_o3_target_for_guess_K = float(T_o3_final_target_K)
+
+            state_o3_target_temp = StatePoint(orc_fluid, "P_o3_TargetTempForGuess")
+            # 使用泵出口压力 P_eva_for_guess 和目标出口温度 T_o3_target_for_guess_K
+            state_o3_target_temp.props_from_PT(P_eva_for_guess, T_o3_target_for_guess_K)
+
+            if state_o3_target_temp.h:
+                h_o3_target_J_kg = state_o3_target_temp.h
+                h_o2_pump_out_J_kg = state_o2_pump_out.h # 泵出口焓值
+                
+                delta_h_evaporator_J_kg = h_o3_target_J_kg - h_o2_pump_out_J_kg
+                
+                if delta_h_evaporator_J_kg > 1e-3: # 避免除零或非常小的数
+                    m_dot_orc_calculated_guess = Q_from_scbc_J_s / delta_h_evaporator_J_kg
+                    print(f"    计算得到的ORC质量流量初始猜测值: {m_dot_orc_calculated_guess:.2f} kg/s")
+                else:
+                    print(f"    警告: 蒸发器目标焓升 ({delta_h_evaporator_J_kg:.2e} J/kg) 过小或为负，无法计算准确的质量流量猜测值。")
+            else:
+                print(f"    警告: 无法计算ORC蒸发器目标出口状态 (P={P_eva_for_guess/1000:.2f} kPa, T={T_o3_target_for_guess_K-273.15:.2f}°C) 的焓值。")
+        except (TypeError, ValueError) as e:
+            print(f"    警告: 计算ORC质量流量初始猜测值时，输入参数类型错误: {e}")
+            print(f"      P_eva_for_guess (from state_o2_pump_out.P): {state_o2_pump_out.P}, T_o3_final_target_K: {T_o3_final_target_K}")
+
+    else:
+        print("    警告: 计算ORC质量流量初始猜测值所需的一个或多个上游参数缺失或无效。")
+        # 详细打印缺失的参数，帮助调试
+        details = []
+        if not state_o2_pump_out: details.append("state_o2_pump_out is None")
+        elif state_o2_pump_out.P is None: details.append("state_o2_pump_out.P is None")
+        elif state_o2_pump_out.h is None: details.append("state_o2_pump_out.h is None")
+        if Q_from_scbc_J_s is None: details.append("Q_from_scbc_J_s is None")
+        if T_o3_final_target_K is None: details.append("T_o3_final_target_K is None")
+        if not orc_fluid: details.append("orc_fluid is None or empty")
+        print(f"      缺失详情: {'; '.join(details)}")
+
+
+    if m_dot_orc_calculated_guess is not None and m_dot_orc_calculated_guess > 1e-6: # 确保流量是正的且有意义
+        m_dot_orc_current_kg_s = m_dot_orc_calculated_guess
+        print(f"  使用计算得到的初始质量流量: {m_dot_orc_current_kg_s:.2f} kg/s 进行迭代。")
+    else:
+        # 回退到从 orc_params 读取或硬编码的默认值
+        # m_dot_orc_kg_s_initial_guess 已在 L569-L570 定义
+        m_dot_orc_current_kg_s = m_dot_orc_kg_s_initial_guess
+        print(f"    警告: 计算得到的ORC质量流量初始猜测值 ({m_dot_orc_calculated_guess}) 不合理或计算失败。")
+        print(f"  回退到参数文件或默认的初始质量流量: {m_dot_orc_current_kg_s:.2f} kg/s 进行迭代。")
+    # --- 结束新的ORC质量流量初始猜测值生成逻辑 ---
+
     # 迭代调整ORC质量流量 m_dot_orc，以满足蒸发器出口温度约束
-    m_dot_orc_current_kg_s = m_dot_orc_kg_s_initial_guess
     max_iter_orc_mdot = orc_params.get("max_iter_orc_mdot", 40)
     tol_orc_T_approach = orc_params.get("tol_orc_T_approach_K", 0.5) # 0.5 K 容差
     m_dot_adj_factor_high = 1.05 # 流量调整因子（当温度过高时增加流量）

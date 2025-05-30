@@ -95,9 +95,9 @@ def update_cycle_parameters(
 if __name__ == "__main__":
     # 示例用法：
     # 您可以修改这些值，或者从命令行参数、用户输入等方式获取
-    example_new_t5_c = 599.85  # 新的SCBC透平入口温度 (°C)
-    example_new_pr_scbc = 3.27   # 新的SCBC主循环压比
-    example_new_pr_orc = 3.37    # 新的ORC透平膨胀比
+    example_new_t5_c = 550 # 新的SCBC透平入口温度 (°C)
+    example_new_pr_scbc = 3   # 新的SCBC主循环压比
+    example_new_pr_orc = 3    # 新的ORC透平膨胀比
     example_new_theta_w_orc_c = 127.76 # 新的ORC透平入口温度 (°C)
 
     print("开始修改循环参数...")

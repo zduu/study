@@ -10,8 +10,8 @@
     "scbc_parameters": {
         "p1_compressor_inlet_kPa": 7400.0,
         "T1_compressor_inlet_C": 35.0,
-        "T5_turbine_inlet_C": 599.85,
-        "PR_main_cycle_pressure_ratio": 3.27,
+        "T5_turbine_inlet_C": 550,
+        "PR_main_cycle_pressure_ratio": 3,
         "eta_T_turbine": 0.9,
         "eta_C_compressor": 0.85,
         "eta_H_HTR_effectiveness": 0.86,
@@ -19,8 +19,8 @@
     },
     "orc_parameters": {
         "P_eva_kPa_orc": 1500.0,
-        "P_cond_kPa_orc": 445.10385756676556,
-        "T_pump_in_C_orc": 58.66488108471714,
+        "P_cond_kPa_orc": 500.0,
+        "T_pump_in_C_orc": 62.76263413239275,
         "delta_T_superheat_orc_K": 19.941163964276157,
         "eta_TO_turbine": 0.8,
         "eta_PO_pump": 0.75

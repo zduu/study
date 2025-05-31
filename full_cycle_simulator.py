@@ -501,7 +501,7 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
     eta_P_orc = orc_params.get('eta_PO_pump', 0.75)  # Use eta_PO_pump as per params file
     eta_T_orc = orc_params.get('eta_TO_turbine', 0.8)  # Use eta_TO_turbine
 
-    approach_temp_eva_K_orc = common_params.get("heat_exchangers_common", {}).get('approach_temp_eva_K_orc', 5.0)
+    approach_temp_eva_K_orc = common_params.get("heat_exchangers_common", {}).get('approach_temp_eva_K_orc', 10.0)
     m_dot_orc_kg_s_initial_guess = orc_params.get('m_dot_orc_initial_guess_kg_s', 100.0)
 
     if any(v is None for v in [P_eva_orc_kPa, P_cond_kPa_orc, T_pump_in_C_orc, delta_T_superheat_orc_K]):

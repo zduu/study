@@ -1,6 +1,6 @@
 import json
 import contextlib
-from state_point_calculator import StatePoint, to_kelvin, to_pascal
+from state_point_calculator import StatePoint, to_kelvin, to_pascal, T0_K
 from cycle_components import (
     model_compressor_MC,
     model_turbine_T,
@@ -10,12 +10,49 @@ from cycle_components import (
     model_cooler_set_T_out,
     model_heater_set_T_out
 )
-import sys
-sys.stdout.reconfigure(encoding='utf-8')
+import sys  # For redirecting output if needed
 
 
 # Optional: for numerical root finding
 # from scipy.optimize import root_scalar
+
+def calculate_exergy_efficiency(Q_in_J_s, T_source_K, W_net_J_s):
+    """
+    计算热力循环的火用效率。
+    
+    参数:
+        Q_in_J_s: 循环吸收的热量 (J/s 或 W)
+        T_source_K: 热源温度 (K)
+        W_net_J_s: 循环净输出功 (J/s 或 W)
+        
+    返回:
+        火用效率 (无量纲)
+    """
+    # 卡诺因子
+    carnot_factor = 1 - T0_K / T_source_K
+    
+    # 热输入的火用
+    E_in_J_s = Q_in_J_s * carnot_factor
+    
+    # 火用效率
+    if E_in_J_s > 0:
+        exergy_efficiency = W_net_J_s / E_in_J_s
+    else:
+        exergy_efficiency = 0
+        
+    return exergy_efficiency
+
+def calculate_theoretical_exergy_efficiency(T_source_K):
+    """
+    计算理论火用效率 (卡诺效率)
+    
+    参数:
+        T_source_K: 热源温度 (K)
+        
+    返回:
+        理论火用效率 (无量纲)
+    """
+    return 1 - T0_K / T_source_K
 
 def load_cycle_parameters(filename="cycle_setup_parameters.json"):
     """从JSON文件加载循环设定参数"""
@@ -349,10 +386,19 @@ def simulate_scbc_orc_cycle(params):
     print(f"\nSCBC净输出功 (最终): {W_net_scbc_MW_final:.2f} MW")
     print(f"SCBC吸热器吸热量 Q_ER (最终): {Q_in_scbc_MW_final:.2f} MW")
     print(f"SCBC热效率 (最终): {eta_scbc_thermal_final * 100:.2f}%")
-
+    
+    # 计算SCBC循环的火用效率
+    # 使用状态点5的实际温度，而不是参数中的设定值，以更准确反映热力学状态
+    T_er_source_K = final_scbc_states["P5_ER_Out_Turbine_In"].T if final_scbc_states and final_scbc_states.get("P5_ER_Out_Turbine_In") else to_kelvin(scbc_params.get('T5_turbine_inlet_C', 600))
+    theoretical_exergy_eff = calculate_theoretical_exergy_efficiency(T_er_source_K)
+    print(f"基于T5温度 {T_er_source_K-273.15:.2f}°C 的理论火用效率: {theoretical_exergy_eff * 100:.2f}%")
+    eta_scbc_exergy = calculate_exergy_efficiency(Q_er_calc_J_s_final, T_er_source_K, W_net_scbc_J_s_final)
+    print(f"SCBC火用效率 (最终): {eta_scbc_exergy * 100:.2f}%")
+    
     # --- ORC仿真 ---
     W_net_orc_MW = 0
     eta_orc_thermal = 0
+    eta_orc_exergy = 0  # 添加ORC火用效率变量
     if Q_go_scbc_side_J_s is not None and abs(Q_go_scbc_side_J_s) > 1e-6:
         # Pass necessary data to ORC simulation
         params["intermediate_results"] = {
@@ -370,8 +416,10 @@ def simulate_scbc_orc_cycle(params):
             print("\n--- ORC独立循环仿真完成 ---")
             W_net_orc_MW = orc_results.get("W_net_orc_MW", 0)
             eta_orc_thermal = orc_results.get("eta_orc_thermal", 0)
+            eta_orc_exergy = orc_results.get("eta_orc_exergy", 0)  # 获取ORC火用效率
             print(f"ORC净输出功: {W_net_orc_MW:.2f} MW")
             print(f"ORC热效率: {eta_orc_thermal * 100:.2f}%")
+            print(f"ORC火用效率: {eta_orc_exergy * 100:.2f}%")  # 输出ORC火用效率
         else:
             print("ORC独立循环仿真失败或未返回有效结果。")
     else:
@@ -388,8 +436,14 @@ def simulate_scbc_orc_cycle(params):
         eta_combined_thermal = W_net_combined_MW / Q_in_scbc_MW_final
         print(f"总输入热量 (SCBC ER): {Q_in_scbc_MW_final:.2f} MW")
         print(f"联合循环总热效率: {eta_combined_thermal * 100:.2f}%")
+        
+        # 计算联合循环的火用效率
+        W_net_combined_J_s = W_net_combined_MW * 1e6
+        eta_combined_exergy = calculate_exergy_efficiency(Q_er_calc_J_s_final, T_er_source_K, W_net_combined_J_s)
+        print(f"联合循环总火用效率: {eta_combined_exergy * 100:.2f}%")
+        print(f"联合循环火用效率/理论火用效率: {(eta_combined_exergy/theoretical_exergy_eff) * 100:.2f}%")
     else:
-        print("无法计算联合循环总热效率，因SCBC总输入热量未知或为零。")
+        print("无法计算联合循环总热效率和火用效率，因SCBC总输入热量未知或为零。")
 
     print("\n--- SCBC/ORC联合循环仿真结束 ---")
 
@@ -612,11 +666,17 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
 
     W_net_orc_MW_val = W_t_orc_total_MW - W_p_orc_total_MW
     eta_orc_thermal_val = W_net_orc_MW_val / (Q_from_scbc_J_s / 1e6) if (Q_from_scbc_J_s / 1e6) > 1e-6 else 0
+    
+    # 计算ORC的火用效率
+    T_orc_source_K = T_scbc_go_hot_in_K  # 使用SCBC侧GO的入口温度作为热源温度
+    W_net_orc_J_s = W_net_orc_MW_val * 1e6
+    eta_orc_exergy = calculate_exergy_efficiency(Q_from_scbc_J_s, T_orc_source_K, W_net_orc_J_s)
 
     return {
         "orc_states": orc_states,
         "W_net_orc_MW": W_net_orc_MW_val,
         "eta_orc_thermal": eta_orc_thermal_val,
+        "eta_orc_exergy": eta_orc_exergy,
         "Q_cond_orc_MW": abs(Q_cond_orc_J_s_recalc / 1e6) if Q_cond_orc_J_s_recalc else None
     }
 

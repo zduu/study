@@ -432,20 +432,24 @@ def simulate_scbc_orc_cycle(params):
     print(f"ORC净输出功: {W_net_orc_MW:.2f} MW")
     print(f"联合循环总净输出功: {W_net_combined_MW:.2f} MW")
 
-    if Q_in_scbc_MW_final > 1e-6:
-        eta_combined_thermal = W_net_combined_MW / Q_in_scbc_MW_final
-        print(f"总输入热量 (SCBC ER): {Q_in_scbc_MW_final:.2f} MW")
-        print(f"联合循环总热效率: {eta_combined_thermal * 100:.2f}%")
-        
-        # 计算联合循环的火用效率
-        W_net_combined_J_s = W_net_combined_MW * 1e6
-        eta_combined_exergy = calculate_exergy_efficiency(Q_er_calc_J_s_final, T_er_source_K, W_net_combined_J_s)
-        print(f"联合循环总火用效率: {eta_combined_exergy * 100:.2f}%")
-        print(f"联合循环火用效率/理论火用效率: {(eta_combined_exergy/theoretical_exergy_eff) * 100:.2f}%")
-    else:
-        print("无法计算联合循环总热效率和火用效率，因SCBC总输入热量未知或为零。")
+    # 在 simulate_scbc_orc_cycle 函数末尾，联合循环性能计算部分
+    print(f"DEBUG: Q_in_scbc_MW_final = {Q_in_scbc_MW_final}")
+    print(f"DEBUG: W_net_combined_MW = {W_net_combined_MW}")
+    print(f"DEBUG: T_er_source_K for exergy calc = {T_er_source_K}")
 
-    print("\n--- SCBC/ORC联合循环仿真结束 ---")
+    if Q_in_scbc_MW_final is not None and Q_in_scbc_MW_final > 1e-6 and W_net_combined_MW is not None and T_er_source_K is not None:
+        eta_combined_thermal = W_net_combined_MW / Q_in_scbc_MW_final
+        print(f"联合循环总热效率: {eta_combined_thermal * 100:.2f}%")  # 确保这行打印
+
+        W_net_combined_J_s = W_net_combined_MW * 1e6
+        Q_er_calc_J_s_for_exergy = Q_in_scbc_MW_final * 1e6  # 确保使用正确的Q输入
+        eta_combined_exergy = calculate_exergy_efficiency(Q_er_calc_J_s_for_exergy, T_er_source_K, W_net_combined_J_s)
+        print(f"联合循环总㶲效率: {eta_combined_exergy * 100:.2f}%")  # 确保这行打印
+        # ...
+    else:
+        print("DEBUG: 无法计算效率，因为一个或多个关键输入为 None 或无效。")
+        print(f"联合循环总热效率: N/A %")  # 明确打印N/A
+        print(f"联合循环总㶲效率: N/A %")  # 明确打印N/A
 
 
 # (simulate_orc_standalone function remains largely the same as your provided version,

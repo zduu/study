@@ -1,19 +1,23 @@
+# state_point_calculator.py
 import numpy as np
 from CoolProp.CoolProp import PropsSI
 import json
 import scipy.optimize
 
 # --- 环境参考状态 (用于㶲计算) ---
+# These need to be defined for StatePoint if exergy calculation is active
 T0_CELSIUS = 9.56
 P0_KPA = 101.382
 
 T0_K = T0_CELSIUS + 273.15
 P0_PA = P0_KPA * 1000
 
+
 # --- 辅助函数 ---
 def to_kelvin(T_celsius):
     """将摄氏度转换为开尔文温度"""
     return T_celsius + 273.15
+
 
 def to_pascal(P_bar_or_kpa, unit='kpa'):
     """将不同单位的压力转换为帕斯卡"""
@@ -25,17 +29,30 @@ def to_pascal(P_bar_or_kpa, unit='kpa'):
         return P_bar_or_kpa * 1e5
     return P_bar_or_kpa
 
+
 # --- 核心物性计算类 ---
 class StatePoint:
     def __init__(self, fluid_name, name=""):
         self.fluid = fluid_name
         self.name = name
-        self.P = None; self.T = None; self.h = None; self.s = None
-        self.d = None; self.e = None; self.q = None; self.m_dot = None
+        self.P = None;
+        self.T = None;
+        self.h = None;
+        self.s = None
+        self.d = None;
+        self.e = None;
+        self.q = None;
+        self.m_dot = None
         try:
             self._h0 = PropsSI('H', 'T', T0_K, 'P', P0_PA, self.fluid)
             self._s0 = PropsSI('S', 'T', T0_K, 'P', P0_PA, self.fluid)
         except ValueError:
+            # This can happen if T0,P0 is outside the valid range for the fluid in CoolProp
+            # print(f"Warning: Could not calculate reference h0/s0 for {self.fluid} with T0={T0_K-273.15:.2f}C, P0={P0_PA/1000:.2f}kPa for StatePoint '{self.name}'. Exergy will be None.")
+            self._h0 = None
+            self._s0 = None
+        except Exception as e_ref:  # Catch any other CoolProp or general exceptions
+            # print(f"Warning: Exception during reference h0/s0 calculation for {self.fluid} (StatePoint '{self.name}'): {e_ref}. Exergy will be None.")
             self._h0 = None
             self._s0 = None
 
@@ -46,47 +63,55 @@ class StatePoint:
             self.e = None
 
     def props_from_PT(self, P_Pa, T_K):
-        self.P = P_Pa; self.T = T_K
+        self.P = P_Pa;
+        self.T = T_K
         try:
             self.h = PropsSI('H', 'P', self.P, 'T', self.T, self.fluid)
             self.s = PropsSI('S', 'P', self.P, 'T', self.T, self.fluid)
             self.d = PropsSI('D', 'P', self.P, 'T', self.T, self.fluid)
             self._calculate_exergy()
         except Exception as err:
-            print(f"计算P,T物性时出错 {self.name} ({self.fluid}): {err}")
+            # print(f"计算P,T物性时出错 {self.name} ({self.fluid}): {err}")
             self.h, self.s, self.d, self.e = None, None, None, None
         return self
 
     def props_from_PH(self, P_Pa, h_J_kg):
-        self.P = P_Pa; self.h = h_J_kg
+        self.P = P_Pa;
+        self.h = h_J_kg
         try:
             self.T = PropsSI('T', 'P', self.P, 'H', self.h, self.fluid)
             self.s = PropsSI('S', 'P', self.P, 'H', self.h, self.fluid)
             self.d = PropsSI('D', 'P', self.P, 'H', self.h, self.fluid)
-            try: self.q = PropsSI('Q', 'P', self.P, 'H', self.h, self.fluid)
-            except: self.q = None
+            try:
+                self.q = PropsSI('Q', 'P', self.P, 'H', self.h, self.fluid)
+            except:
+                self.q = None  # Set q to None if it fails
             self._calculate_exergy()
         except Exception as err:
-            print(f"计算P,H物性时出错 {self.name} ({self.fluid}): {err}")
+            # print(f"计算P,H物性时出错 {self.name} ({self.fluid}): {err}")
             self.T, self.s, self.d, self.e, self.q = None, None, None, None, None
         return self
 
     def props_from_PS(self, P_Pa, s_J_kgK):
-        self.P = P_Pa; self.s = s_J_kgK
+        self.P = P_Pa;
+        self.s = s_J_kgK
         try:
             self.T = PropsSI('T', 'P', self.P, 'S', self.s, self.fluid)
             self.h = PropsSI('H', 'P', self.P, 'S', self.s, self.fluid)
             self.d = PropsSI('D', 'P', self.P, 'S', self.s, self.fluid)
-            try: self.q = PropsSI('Q', 'P', self.P, 'S', self.s, self.fluid)
-            except: self.q = None
+            try:
+                self.q = PropsSI('Q', 'P', self.P, 'S', self.s, self.fluid)
+            except:
+                self.q = None  # Set q to None if it fails
             self._calculate_exergy()
         except Exception as err:
-            print(f"计算P,S物性时出错 {self.name} ({self.fluid}): {err}")
+            # print(f"计算P,S物性时出错 {self.name} ({self.fluid}): {err}")
             self.T, self.h, self.d, self.e, self.q = None, None, None, None, None
         return self
 
     def props_from_PQ(self, P_Pa, Q_frac):
-        self.P = P_Pa; self.q = Q_frac
+        self.P = P_Pa;
+        self.q = Q_frac
         try:
             self.T = PropsSI('T', 'P', self.P, 'Q', self.q, self.fluid)
             self.h = PropsSI('H', 'P', self.P, 'Q', self.q, self.fluid)
@@ -94,18 +119,27 @@ class StatePoint:
             self.d = PropsSI('D', 'P', self.P, 'Q', self.q, self.fluid)
             self._calculate_exergy()
         except Exception as err:
-            print(f"计算P,Q物性时出错 {self.name} ({self.fluid}): {err}")
+            # print(f"计算P,Q物性时出错 {self.name} ({self.fluid}): {err}")
             self.T, self.h, self.s, self.d, self.e = None, None, None, None, None
         return self
 
     def __str__(self):
-        P_str = f"{self.P/1e6:.3f}" if self.P is not None else "N/A"
+        P_str = f"{self.P / 1e6:.3f}" if self.P is not None else "N/A"
         T_str = f"{self.T - 273.15:.2f}" if self.T is not None else "N/A"
-        h_str = f"{self.h/1e3:.2f}" if self.h is not None else "N/A"
-        s_str = f"{self.s/1e3:.4f}" if self.s is not None else "N/A"
-        d_str = f"{self.d:.2f}" if self.d is not None else "N/A"
-        e_str = f"{self.e/1e3:.2f}" if self.e is not None else "N/A"
-        q_str = f"{self.q:.4f}" if self.q is not None and self.q != -1.0 else ("N/A" if self.q is None else "过热/超临界") # Q=-1 often means single phase from CoolProp
+        h_str = f"{self.h / 1e3:.2f}" if self.h is not None else "N/A"
+        s_str = f"{self.s / 1e3:.4f}" if self.s is not None else "N/A"
+        # MODIFIED LINE: Replaced 'kg/m³' with 'kg/m^3' for GBK compatibility
+        d_str = f"{self.d:.2f} kg/m^3" if self.d is not None else "N/A kg/m^3"
+        e_str = f"{self.e / 1e3:.2f}" if self.e is not None else "N/A"
+        # CoolProp returns Q=-1 for single phase regions.
+        # For two-phase region, Q is between 0 and 1.
+        q_val_display = "N/A"
+        if self.q is not None:
+            if self.q < 0 or self.q > 1:  # Typically indicates single phase (supercritical, subcooled, superheated)
+                q_val_display = "过热/超临界"  # These Chinese characters should be fine with GBK console
+            else:  # Two-phase
+                q_val_display = f"{self.q:.4f}"
+
         m_dot_str = f"{self.m_dot:.2f}" if self.m_dot is not None else "N/A"
 
         return (f"状态点: {self.name} ({self.fluid})\n"
@@ -113,12 +147,17 @@ class StatePoint:
                 f"  T = {T_str} °C\n"
                 f"  h = {h_str} kJ/kg\n"
                 f"  s = {s_str} kJ/kgK\n"
-                f"  d = {d_str} kg/m³\n"
+                f"  d = {d_str}\n"  # Removed unit here, already in d_str
                 f"  e = {e_str} kJ/kg\n"
-                f"  Q = {q_str}\n"
+                f"  Q = {q_val_display}\n"
                 f"  m_dot = {m_dot_str} kg/s")
 
+
 # --- T0/P0反推相关函数定义 (全局作用域) ---
+# (The rest of the file remains the same as your uploaded version)
+# ... (table10_data_for_fitting, exergy_error_func, run_t0_p0_fitting) ...
+# ... (if __name__ == "__main__": block) ...
+
 table10_data_for_fitting = [
     ("SCBC 1", "CO2", 7400.00, 35.00, 402.40, 1.66, 200.84),
     ("SCBC 2", "CO2", 24198.00, 121.73, 453.36, 1.68, 246.29),
@@ -135,10 +174,11 @@ table10_data_for_fitting = [
     ("ORC 012", "R245fa", 1500.00, 59.37, 279.52, 1.26, 6.29),
 ]
 
+
 def exergy_error_func(params_T0_P0, data_points):
     T0_K_fit, P0_Pa_fit = params_T0_P0
     errors = []
-    if T0_K_fit <= 0 or P0_Pa_fit <= 0: return [1e6] * len(data_points)
+    if T0_K_fit <= 0 or P0_Pa_fit <= 0: return [1e6] * len(data_points)  # Invalid parameters
     for _, fluid, _, _, h_kJ_kg, s_kJ_kgK, e_kJ_kg_paper in data_points:
         try:
             _h0 = PropsSI('H', 'T', T0_K_fit, 'P', P0_Pa_fit, fluid)
@@ -147,12 +187,15 @@ def exergy_error_func(params_T0_P0, data_points):
             s_J_paper = s_kJ_kgK * 1000
             e_calc_J = (h_J_paper - _h0) - T0_K_fit * (s_J_paper - _s0)
             errors.append(e_calc_J / 1000 - e_kJ_kg_paper)
-        except Exception: errors.append(1e6)
+        except Exception:
+            errors.append(1e6)  # Penalize if CoolProp fails for these T0, P0
     return errors
+
 
 def run_t0_p0_fitting():
     print("\n--- 开始反推参考状态 T0 和 P0 ---")
-    initial_params = [298.15, 101325.0]
+    initial_params = [298.15, 101325.0]  # Initial guess: 25°C, 1 atm
+    # Bounds for T0 (e.g., 0°C to 50°C) and P0 (e.g., 80 kPa to 120 kPa)
     bounds = ([273.15, 80000.0], [323.15, 120000.0])
     try:
         result = scipy.optimize.least_squares(
@@ -161,16 +204,22 @@ def run_t0_p0_fitting():
         if result.success:
             T0_fit_K, P0_fit_Pa = result.x
             print(f"  优化成功! 反推 T0 = {T0_fit_K - 273.15:.2f} °C, P0 = {P0_fit_Pa / 1000:.3f} kPa")
-        else: print(f"  优化未成功: {result.message}")
-    except Exception as e_fit: print(f"  运行反推时发生错误: {e_fit}")
+            print(f"  (请注意，脚本顶部的全局 T0_K, P0_PA 仍在使用固定值进行实际计算)")
+            print(f"  如需使用此反推值，请手动更新脚本顶部的 T0_CELSIUS 和 P0_KPA。")
+        else:
+            print(f"  优化未成功: {result.message}")
+    except Exception as e_fit:
+        print(f"  运行反推时发生错误: {e_fit}")
+
 
 # --- 主程序块 ---
 if __name__ == "__main__":
-    print("--- 脚本开始执行 ---")
+    print("--- 脚本 state_point_calculator.py 开始执行 ---")
     print(f"当前使用的全局参考状态: T0 = {T0_CELSIUS:.2f} °C ({T0_K:.2f} K), P0 = {P0_KPA:.3f} kPa ({P0_PA:.0f} Pa)")
     print("--- 正在验证表10中的所有状态点 (基于论文给定的P,T) ---")
 
-    validation_data = [
+    validation_data_from_paper_table10 = [
+        # ("PointName", "Fluid", P_kPa, T_C, h_kJ_kg_paper, s_kJ_kgK_paper, e_kJ_kg_paper, m_dot_kg_s)
         ("SCBC 1", "CO2", 7400.00, 35.00, 402.40, 1.66, 200.84, 1945.09),
         ("SCBC 2", "CO2", 24198.00, 121.73, 453.36, 1.68, 246.29, 1945.09),
         ("SCBC 3", "CO2", 24198.00, 281.92, 696.46, 2.21, 341.30, 2641.42),
@@ -179,6 +228,7 @@ if __name__ == "__main__":
         ("SCBC 6", "CO2", 7400.00, 455.03, 932.38, 2.80, 409.40, 2641.42),
         ("SCBC 7", "CO2", 7400.00, 306.16, 761.08, 2.54, 312.52, 2641.42),
         ("SCBC 8", "CO2", 7400.00, 147.55, 582.06, 2.17, 235.75, 1945.09),
+        # Note: m_dot for point 8 depends on split if it's 8r or 8m
         ("SCBC 9", "CO2", 7400.00, 84.26, 503.44, 1.97, 214.69, 1945.09),
         ("ORC 09", "R245fa", 1500.00, 127.76, 505.35, 1.86, 61.21, 677.22),
         ("ORC 010", "R245fa", 445.10, 94.67, 485.51, 1.88, 37.52, 677.22),
@@ -188,76 +238,115 @@ if __name__ == "__main__":
 
     output_csv_data = []
     csv_header = [
-        "PointName", "Fluid", "P_kPa_input", "T_C_input", "h_kJ_kg_paper", 
-        "s_kJ_kgK_paper", "e_kJ_kg_paper", "m_dot_kg_s", "h_J_kg_calc", "s_J_kgK_calc", 
-        "d_kg_m3_calc", "e_J_kg_calc", "e_kJ_kg_calc", "e_diff_kJ_kg"
+        "PointName", "Fluid", "P_kPa_input", "T_C_input", "h_kJ_kg_paper",
+        "s_kJ_kgK_paper", "e_kJ_kg_paper", "m_dot_kg_s", "h_J_kg_calc", "s_J_kgK_calc",
+        "d_kg_m3_calc", "T_C_calc", "e_J_kg_calc", "e_kJ_kg_calc", "e_diff_kJ_kg", "q_calc"
     ]
     output_csv_data.append(csv_header)
 
     print("\n详细状态点验证 (㶲对比):")
-    print("="*120)
-    print(f"{'状态点名':<18} {'流体':<6} {'P(kPa)':>8} {'T(C)':>7} {'h(kJ/kg)':>10} {'s(kJ/kgK)':>10} {'m_dot(kg/s)':>12} {'e_calc(kJ/kg)':>14} {'e_paper(kJ/kg)':>14} {'e_diff(kJ/kg)':>14}")
-    print("-"*120)
+    print("=" * 140)  # Adjusted width
+    print(
+        f"{'状态点名':<18} {'流体':<6} {'P(kPa)':>8} {'T_in(C)':>8} {'h_calc(kJ/kg)':>13} {'s_calc(kJ/kgK)':>14} {'m_dot(kg/s)':>12} {'e_calc(kJ/kg)':>14} {'e_paper(kJ/kg)':>14} {'e_diff(kJ/kg)':>14} {'Q_calc':>10}")
+    print("-" * 140)  # Adjusted width
 
-    for name, fluid, p_kpa, t_c, h_kj_kg_paper, s_kj_kgk_paper, e_kj_kg_paper, m_dot_kg_s in validation_data:
+    for name, fluid, p_kpa, t_c_input, h_kj_kg_paper, s_kj_kgk_paper, e_kj_kg_paper, m_dot_kg_s in validation_data_from_paper_table10:
         P_Pa = to_pascal(p_kpa, 'kpa')
-        T_K = to_kelvin(t_c)
+        T_K_input = to_kelvin(t_c_input)  # Input temperature from paper
+
         current_state = StatePoint(fluid_name=fluid, name=name)
-        current_state.props_from_PT(P_Pa, T_K)
+        current_state.props_from_PT(P_Pa, T_K_input)  # Calculate props based on P, T from paper
         current_state.m_dot = m_dot_kg_s
+
+        h_calc_kj = current_state.h / 1000 if current_state.h is not None else float('nan')
+        s_calc_kjkgk = current_state.s / 1000 if current_state.s is not None else float('nan')
         e_calc_kj = current_state.e / 1000 if current_state.e is not None else float('nan')
         e_diff_kj = e_calc_kj - e_kj_kg_paper if current_state.e is not None else float('nan')
-        print(f"{name:<18} {fluid:<6} {p_kpa:>8.2f} {t_c:>7.2f} {current_state.h/1000 if current_state.h else 'N/A':>10.2f} {current_state.s/1000 if current_state.s else 'N/A':>10.4f} {m_dot_kg_s:>12.2f} {e_calc_kj:>14.2f} {e_kj_kg_paper:>14.2f} {e_diff_kj:>14.2f}")
+        t_c_calc = current_state.T - 273.15 if current_state.T is not None else float('nan')
+
+        q_display_calc = "N/A"
+        if current_state.q is not None:
+            if current_state.q < 0 or current_state.q > 1:
+                q_display_calc = "1ph"  # Single Phase
+            else:
+                q_display_calc = f"{current_state.q:.2f}"
+
+        print(
+            f"{name:<18} {fluid:<6} {p_kpa:>8.2f} {t_c_input:>8.2f} {h_calc_kj:>13.2f} {s_calc_kjkgk:>14.4f} {m_dot_kg_s:>12.2f} {e_calc_kj:>14.2f} {e_kj_kg_paper:>14.2f} {e_diff_kj:>14.2f} {q_display_calc:>10}")
+
         csv_row = [
-            name, fluid, p_kpa, t_c, h_kj_kg_paper, s_kj_kgk_paper, e_kj_kg_paper, m_dot_kg_s,
-            current_state.h, current_state.s, 
-            current_state.d, current_state.e, e_calc_kj, e_diff_kj
+            name, fluid, p_kpa, t_c_input, h_kj_kg_paper, s_kj_kgk_paper, e_kj_kg_paper, m_dot_kg_s,
+            current_state.h, current_state.s, current_state.d, t_c_calc,
+            current_state.e, e_calc_kj, e_diff_kj, current_state.q
         ]
         output_csv_data.append(csv_row)
-    print("="*120)
+    print("=" * 140)
 
     csv_filename = "calculated_state_points_from_table10.csv"
     try:
-        import csv # Already imported at top
-        with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+        import csv
+
+        with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:  # Ensure UTF-8 for CSV
             writer = csv.writer(csvfile)
             writer.writerows(output_csv_data)
         print(f"\n状态点数据已成功导出到: {csv_filename}")
     except Exception as e_csv:
         print(f"\n导出到CSV文件时出错: {e_csv}")
 
-    # --- (可选) 调用T0/P0反推函数 ---
-    print("\n尝试执行T0/P0反推...")
-    run_t0_p0_fitting() 
+    print("\n尝试执行T0/P0反推 (如果需要)...")
+    # run_t0_p0_fitting() # Uncomment to run fitting
 
-    # --- 输出循环设定参数到JSON文件 ---
     print("\n--- 正在输出循环设定参数到 cycle_setup_parameters.json ---")
+    # Parameters used for the GA optimization as per paper's Table 8 (optimized values)
+    # SCBC/ORC system: PR=3.27, θ5=599.85°C, θw=127.76°C, pr=3.37
     cycle_parameters = {
         "fluids": {"scbc": "CO2", "orc": "R245fa"},
         "reference_conditions": {"T0_C": T0_CELSIUS, "P0_kPa": P0_KPA},
         "scbc_parameters": {
-            "p1_compressor_inlet_kPa": 7400.0, "T1_compressor_inlet_C": 35.0,
-            "T5_turbine_inlet_C": 599.85, "PR_main_cycle_pressure_ratio": 3.27, # 更新为论文表8优化值
-            "eta_T_turbine": 0.9, "eta_C_compressor": 0.85, # 效率保持不变，除非表8有特定说明
-            "eta_H_HTR_effectiveness": 0.86, "eta_L_LTR_effectiveness": 0.86
+            "p1_compressor_inlet_kPa": 7400.0,  # Base value from paper Table 10
+            "T1_compressor_inlet_C": 35.0,  # Base value
+            # These will be varied by the GA, but we need initial/default values.
+            # Let's use the optimized values from paper Table 8 for SCBC/ORC as defaults.
+            "T5_turbine_inlet_C": 599.85,  # θ5 from Table 8
+            "PR_main_cycle_pressure_ratio": 3.27,  # PR from Table 8
+            "eta_T_turbine": 0.9,  # From paper Table 6
+            "eta_C_compressor": 0.85,  # From paper Table 6 (assumed for MC and RC)
+            "eta_H_HTR_effectiveness": 0.86,  # From paper Table 6
+            "eta_L_LTR_effectiveness": 0.86,  # From paper Table 6
+            # Parameters for iteration control in full_cycle_simulator
+            "max_iter_scbc_main_loop": 20,
+            "tol_scbc_h_kJ_kg": 0.1,
+            "m_dot_total_main_flow_kg_s": 2641.42,  # From paper Table 10 (e.g. point 3)
+            "m_dot_mc_branch_kg_s": 1945.09,  # From paper Table 10 (e.g. point 1)
         },
         "orc_parameters": {
-            # "T_turbine_inlet_C": 120.0, # 将由蒸发压力+过热度决定，或作为参考
-            # "PR_turbine_expansion_ratio": 3.0, # 将由蒸发和冷凝压力决定
-            "P_eva_kPa_orc": 1500.0,             # ORC蒸发压力, kPa (参考论文点09)
-            "P_cond_kPa_orc": 445.10,            # ORC冷凝压力, kPa (参考论文点011)
-            "T_pump_in_C_orc": 58.66,            # ORC泵进口温度, °C (参考论文点011)
-            "delta_T_superheat_orc_K": 20.96,    # ORC透平进口目标过热度, K (参考论文点09: T=127.76C, Tsat@1.5MPa~106.8C)
-            "eta_TO_turbine": 0.8,
-            "eta_PO_pump": 0.75
+            # These will also be varied. Using Table 8 (SCBC/ORC) as defaults.
+            # P_eva_kPa_orc: From paper Table 10, point 09 (1500.0 kPa)
+            # P_cond_kPa_orc: From paper Table 10, point 010/011 (445.10 kPa)
+            # pr_orc = P_eva / P_cond = 1500.0 / 445.10 = 3.369... ~ 3.37 (matches Table 8)
+            "P_eva_kPa_orc": 1500.0,
+            # "P_cond_kPa_orc": 445.10, # This will be calculated from P_eva and pr_orc by modify_cycle_parameters
+            "T_pump_in_C_orc": 58.66,  # From paper Table 10, point 011 (saturated liquid at P_cond)
+            # This will also be re-calculated by modify_cycle_parameters
+            # delta_T_superheat_orc_K : calculated from theta_w_c and P_eva_orc's Tsat
+            # theta_w_c (ORC turbine inlet T): 127.76 °C from Table 8
+            # pr_orc (ORC expansion ratio): 3.37 from Table 8
+            "target_theta_w_orc_turbine_inlet_C": 127.76,  # This is the GA variable theta_w
+            "target_pr_orc_expansion_ratio": 3.37,  # This is the GA variable pr
+            "eta_TO_turbine": 0.8,  # From paper Table 6
+            "eta_PO_pump": 0.75,  # Common assumption, paper Table 6 doesn't list ORC pump eff. Value from readme.
+            # Iteration control for ORC
+            "max_iter_orc_mdot": 40,
+            "tol_orc_T_approach_K": 0.1,  # Tighter tolerance for ORC outlet temp
+            "m_dot_orc_initial_guess_kg_s": 100.0  # Initial guess for ORC mass flow
         },
         "heat_exchangers_common": {
-            "min_temp_diff_pinch_C": 10.0, # 通用最小温差约束
-            "approach_temp_eva_K_orc": 5.0 # GO中ORC侧出口与SCBC热源进口的最小接近温差 (可调整)
+            "min_temp_diff_pinch_C": 10.0,  # General pinch point, from paper assumptions
+            "approach_temp_eva_K_orc": 5.0  # For GO, ORC outlet vs SCBC hot inlet, from readme
         },
         "notes": {
-            "phi_ER_MW_heat_input": 600.0,
-            "cost_fuel_cQ_dollar_per_MWh": 7.4 
+            "phi_ER_MW_heat_input": 600.0,  # From paper Table 6
+            "cost_fuel_cQ_dollar_per_MWh": 7.4  # From paper Table 6
         }
     }
     params_filename = "cycle_setup_parameters.json"
@@ -268,109 +357,4 @@ if __name__ == "__main__":
     except Exception as e_json:
         print(f"\n导出循环设定参数到JSON文件时出错: {e_json}")
 
-    print("\n--- 脚本执行完毕 ---")
-
-"""
-代码运行机理与论文对应关系说明
-================================
-
-1. 代码整体功能
----------------
-本代码实现了超临界CO2布雷顿循环(SCBC)与有机朗肯循环(ORC)耦合系统中工质热力学状态点的计算与验证。
-主要功能包括：
-- 工质物性计算（基于CoolProp库）
-- 㶲值计算与验证
-- 系统参数配置生成
-- 论文数据验证与对比
-
-2. 核心类与函数说明
-------------------
-2.1 StatePoint类
-- 功能：封装工质在特定状态下的所有热力学参数
-- 主要方法：
-  * props_from_PT: 根据压力温度计算其他物性
-  * props_from_PH: 根据压力焓计算其他物性
-  * props_from_PS: 根据压力熵计算其他物性
-  * props_from_PQ: 根据压力干度计算其他物性
-  * _calculate_exergy: 计算物理㶲
-
-2.2 辅助函数
-- to_kelvin: 温度单位转换
-- to_pascal: 压力单位转换
-- exergy_error_func: 用于反推环境参考态
-- run_t0_p0_fitting: 执行T0/P0反推优化
-
-3. 与论文对应关系
----------------
-3.1 环境参考态
-- 论文中未明确给出环境参考态
-- 代码中设定：T0 = 9.56°C, P0 = 101.382 kPa
-- 可通过run_t0_p0_fitting()反推最优值
-
-3.2 状态点验证
-- 基于论文表10数据
-- 验证范围：
-  * SCBC循环：点1-9
-  * ORC循环：点09-012
-- 验证参数：P, T, h, s, e, m_dot
-
-3.3 系统参数配置
-- SCBC参数：
-  * 压缩机入口：P1=7400 kPa, T1=35°C
-  * 透平入口：T5=599.85°C
-  * 压比：PR=3.27
-  * 效率：ηT=0.9, ηC=0.85
-  * 换热器效能：ηHTR=ηLTR=0.86
-
-- ORC参数：
-  * 蒸发压力：1500.0 kPa
-  * 冷凝压力：445.10 kPa
-  * 泵入口温度：58.66°C
-  * 透平效率：0.8
-  * 泵效率：0.75
-
-4. 输出文件说明
--------------
-4.1 calculated_state_points_from_table10.csv
-- 包含所有状态点的详细计算结果
-- 对比论文值与计算值
-- 特别关注㶲值差异
-
-4.2 cycle_setup_parameters.json
-- 系统运行参数配置
-- 用于后续循环模拟
-
-5. 注意事项
-----------
-5.1 物性计算
-- 使用CoolProp库进行物性计算
-- 可能存在与论文使用的物性数据库的差异
-- 建议定期更新CoolProp版本
-
-5.2 㶲值计算
-- 基于物理㶲定义
-- 环境参考态的选择影响计算结果
-- 可通过反推优化环境参考态
-
-5.3 数据验证
-- 定期与论文数据进行对比
-- 关注㶲值差异
-- 记录并分析差异原因
-
-6. 后续开发建议
--------------
-6.1 功能扩展
-- 添加更多物性计算方法
-- 实现化学㶲计算
-- 增加数据可视化功能
-
-6.2 性能优化
-- 优化物性计算效率
-- 改进反推算法
-- 增加并行计算支持
-
-6.3 文档完善
-- 添加更多使用示例
-- 完善错误处理说明
-- 补充物性计算原理说明
-"""
+    print("\n--- 脚本 state_point_calculator.py 执行完毕 ---")

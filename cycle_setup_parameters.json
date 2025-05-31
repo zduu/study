@@ -23,14 +23,16 @@
     },
     "orc_parameters": {
         "P_eva_kPa_orc": 1500.0,
-        "T_pump_in_C_orc": 58.66,
+        "T_pump_in_C_orc": 58.66488108471714,
         "target_theta_w_orc_turbine_inlet_C": 127.76,
         "target_pr_orc_expansion_ratio": 3.37,
         "eta_TO_turbine": 0.8,
         "eta_PO_pump": 0.75,
         "max_iter_orc_mdot": 40,
         "tol_orc_T_approach_K": 0.1,
-        "m_dot_orc_initial_guess_kg_s": 100.0
+        "m_dot_orc_initial_guess_kg_s": 100.0,
+        "P_cond_kPa_orc": 445.10385756676556,
+        "delta_T_superheat_orc_K": 19.941163964276157
     },
     "heat_exchangers_common": {
         "min_temp_diff_pinch_C": 10.0,

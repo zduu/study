@@ -131,22 +131,40 @@ def main():
                     if eff_match:
                         total_eff = eff_match.group(1)
                     else:
-                        print("  警告: 未能从输出中解析到“联合循环总热效率”。")
+                        print("  警告: 未能从输出中解析到\"联合循环总热效率\"。")
 
-                    # SCBC净输出功 (迭代收敛后): 100.00 MW
-                    # 或者 SCBC净输出功: 100.00 MW (如果迭代部分不出现)
-                    scbc_match = re.search(r"SCBC净输出功 \(迭代收敛后\):\s*([\d\.]+)\s*MW", output_text)
-                    if scbc_match:
-                        scbc_power = scbc_match.group(1)
-                    else:
-                        print("  警告: 未能从输出中解析到“SCBC净输出功”。")
+                    # 尝试多种可能的SCBC净输出功格式
+                    # "SCBC净输出功 (最终): 247.75 MW" 或其他变体
+                    scbc_patterns = [
+                        r"SCBC净输出功 \(最终\):\s*([\d\.]+)\s*MW",
+                        r"SCBC净输出功 \(迭代收敛后\):\s*([\d\.]+)\s*MW",
+                        r"SCBC净输出功:\s*([\d\.]+)\s*MW"
+                    ]
+                    
+                    for pattern in scbc_patterns:
+                        scbc_match = re.search(pattern, output_text)
+                        if scbc_match:
+                            scbc_power = scbc_match.group(1)
+                            break
+                    
+                    if scbc_power == "NaN":
+                        print("  警告: 未能从输出中解析到\"SCBC净输出功\"。")
+                        print("  尝试从联合循环输出部分查找...")
+                        # 在联合循环部分再次尝试查找
+                        section_match = re.search(r"--- 联合循环总性能 ---\s*\n(.*?)(?=\n\n|$)", output_text, re.DOTALL)
+                        if section_match:
+                            section_text = section_match.group(1)
+                            scbc_section_match = re.search(r"SCBC净输出功:\s*([\d\.]+)\s*MW", section_text)
+                            if scbc_section_match:
+                                scbc_power = scbc_section_match.group(1)
+                                print(f"  成功从联合循环部分找到SCBC功率: {scbc_power} MW")
 
                     # ORC净输出功: 19.08 MW
                     orc_match = re.search(r"ORC净输出功:\s*([\d\.]+)\s*MW", output_text)
                     if orc_match:
                         orc_power = orc_match.group(1)
                     else:
-                        print("  警告: 未能从输出中解析到“ORC净输出功”。")
+                        print("  警告: 未能从输出中解析到\"ORC净输出功\"。")
                 else:
                     print("  警告: full_cycle_simulator.py 的输出为空，无法解析。")
 

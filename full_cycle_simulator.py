@@ -1,7 +1,7 @@
 import json
 import contextlib
 from state_point_calculator import StatePoint, to_kelvin, to_pascal
-from init.cycle_components import (
+from cycle_components import (
     model_compressor_MC,
     model_turbine_T,
     model_pump_ORC,

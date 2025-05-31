@@ -1,3 +1,4 @@
 ## 下一步：
-- 吃完饭了咕～
-- readme等有空再改～
+- 好像完成了喵～
+- 文档说明请看readme1.md
+- 代码说明请看system_overview.md

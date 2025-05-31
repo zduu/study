@@ -40,7 +40,8 @@ def main():
                 "PR_scbc",
                 "Total_Thermal_Efficiency_percent",
                 "SCBC_Net_Power_MW",
-                "ORC_Net_Power_MW"
+                "ORC_Net_Power_MW",
+                "T9_Precooler_Outlet_C"  # 添加T9温度列
             ])
 
             for current_pr_scbc in PR_SCBC_RANGE:
@@ -63,17 +64,35 @@ def main():
                         print(f"    输出: {modify_result.stdout.strip()}")
                     if modify_result.stderr:
                         print(f"    错误输出: {modify_result.stderr.strip()}")
+                        
+                    # 从输出中提取T9温度值
+                    t9_match = re.search(r"T9_precooler_outlet_C = ([\d\.]+)°C", modify_result.stdout)
+                    current_t9_c = float(t9_match.group(1)) if t9_match else None
+                    print(f"  从输出中提取的T9温度: {current_t9_c}°C" if current_t9_c else "  未能从输出中提取T9温度")
+                        
                 except subprocess.CalledProcessError as e:
                     print(f"  错误: 执行 modify_cycle_parameters.py 失败。返回码: {e.returncode}")
                     print(f"    Stdout: {e.stdout}")
                     print(f"    Stderr: {e.stderr}")
-                    csv_writer.writerow([current_pr_scbc, "Error_Modify", "Error_Modify", "Error_Modify"])
+                    csv_writer.writerow([current_pr_scbc, "Error_Modify", "Error_Modify", "Error_Modify", "Error_T9"])
                     continue # 继续下一个 PR_scbc 值
                 except FileNotFoundError:
                     print(f"  错误: python 或 modify_cycle_parameters.py 未找到。请检查路径和环境。")
-                    csv_writer.writerow([current_pr_scbc, "Error_FileNotFound_Modify", "Error_FileNotFound_Modify", "Error_FileNotFound_Modify"])
+                    csv_writer.writerow([current_pr_scbc, "Error_FileNotFound_Modify", "Error_FileNotFound_Modify", "Error_FileNotFound_Modify", "Error_T9"])
                     continue
 
+                # 如果无法从输出中提取T9值，尝试从JSON文件读取
+                if current_t9_c is None:
+                    try:
+                        import json
+                        params_path = os.path.join(script_dir, "cycle_setup_parameters.json")
+                        with open(params_path, 'r', encoding='utf-8') as f:
+                            params = json.load(f)
+                            current_t9_c = params["scbc_parameters"].get("T9_precooler_outlet_C")
+                            print(f"  从JSON文件读取的T9温度: {current_t9_c}°C" if current_t9_c else "  未能从JSON文件读取T9温度")
+                    except Exception as e_json:
+                        print(f"  读取JSON文件获取T9值时出错: {e_json}")
+                        current_t9_c = None
 
                 # b. 构造并执行 full_cycle_simulator.py 命令
                 command_simulate = ["python", os.path.join(script_dir, "full_cycle_simulator.py")]
@@ -111,12 +130,12 @@ def main():
                              print(f"  读取 full_cycle_simulator_output.txt (模拟失败时)也失败: {read_err}")
                     
                     # 决定是否在CSV中记录特定错误或通用错误
-                    csv_writer.writerow([current_pr_scbc, "Error_Simulate", "Error_Simulate", "Error_Simulate"])
+                    csv_writer.writerow([current_pr_scbc, "Error_Simulate", "Error_Simulate", "Error_Simulate", current_t9_c if current_t9_c else "Error_T9"])
                     # continue # 根据需要决定是否在模拟失败时跳过解析
 
                 except FileNotFoundError:
                     print(f"  错误: python 或 full_cycle_simulator.py 未找到。请检查路径和环境。")
-                    csv_writer.writerow([current_pr_scbc, "Error_FileNotFound_Simulate", "Error_FileNotFound_Simulate", "Error_FileNotFound_Simulate"])
+                    csv_writer.writerow([current_pr_scbc, "Error_FileNotFound_Simulate", "Error_FileNotFound_Simulate", "Error_FileNotFound_Simulate", current_t9_c if current_t9_c else "Error_T9"])
                     continue
 
 
@@ -170,8 +189,8 @@ def main():
 
 
                 # d. 将结果写入CSV文件
-                csv_writer.writerow([current_pr_scbc, total_eff, scbc_power, orc_power])
-                print(f"  结果: PR_scbc={current_pr_scbc}, Eff={total_eff}%, SCBC_P={scbc_power}MW, ORC_P={orc_power}MW")
+                csv_writer.writerow([current_pr_scbc, total_eff, scbc_power, orc_power, current_t9_c if current_t9_c else "NaN"])
+                print(f"  结果: PR_scbc={current_pr_scbc}, Eff={total_eff}%, SCBC_P={scbc_power}MW, ORC_P={orc_power}MW, T9={current_t9_c if current_t9_c else 'NaN'}°C")
                 print(f"已完成 PR_scbc = {current_pr_scbc} 的模拟。")
 
         print(f"\n参数敏感性分析完成。结果已保存到 {RESULTS_CSV_FILE}")

@@ -10,12 +10,13 @@
     "scbc_parameters": {
         "p1_compressor_inlet_kPa": 7400.0,
         "T1_compressor_inlet_C": 35.0,
-        "T5_turbine_inlet_C": 599.85,
-        "PR_main_cycle_pressure_ratio": 3.27,
+        "T5_turbine_inlet_C": 534.8144962373981,
+        "PR_main_cycle_pressure_ratio": 3.6783232470163902,
         "eta_T_turbine": 0.9,
         "eta_C_compressor": 0.85,
         "eta_H_HTR_effectiveness": 0.86,
         "eta_L_LTR_effectiveness": 0.86,
+        "T9_precooler_outlet_C": 86.42161623508194,
         "max_iter_scbc_main_loop": 20,
         "tol_scbc_h_kJ_kg": 0.1,
         "m_dot_total_main_flow_kg_s": 2641.42,
@@ -23,16 +24,14 @@
     },
     "orc_parameters": {
         "P_eva_kPa_orc": 1500.0,
-        "T_pump_in_C_orc": 58.66488108471714,
-        "target_theta_w_orc_turbine_inlet_C": 127.76,
-        "target_pr_orc_expansion_ratio": 3.37,
+        "T_pump_in_C_orc": 68.99439326164628,
+        "target_theta_w_orc_turbine_inlet_C": 125.34616669947351,
+        "target_pr_orc_expansion_ratio": 2.5288694262115072,
         "eta_TO_turbine": 0.8,
         "eta_PO_pump": 0.75,
         "max_iter_orc_mdot": 40,
         "tol_orc_T_approach_K": 0.1,
-        "m_dot_orc_initial_guess_kg_s": 100.0,
-        "P_cond_kPa_orc": 445.10385756676556,
-        "delta_T_superheat_orc_K": 19.941163964276157
+        "m_dot_orc_initial_guess_kg_s": 100.0
     },
     "heat_exchangers_common": {
         "min_temp_diff_pinch_C": 10.0,

@@ -45,33 +45,56 @@ def update_cycle_parameters(
     params["scbc_parameters"]["T5_turbine_inlet_C"] = new_t5_c
     params["scbc_parameters"]["PR_main_cycle_pressure_ratio"] = new_pr_scbc
     print(f"已更新 SCBC: T5_turbine_inlet_C = {new_t5_c}°C, PR_main_cycle_pressure_ratio = {new_pr_scbc}")
+    
+    # 1a. 计算并更新T9_precooler_outlet_C (基于压比和其他参数)
+    scbc_fluid = params["fluids"]["scbc"]
+    p1_kpa = params["scbc_parameters"]["p1_compressor_inlet_kPa"]
+    T1_C = params["scbc_parameters"]["T1_compressor_inlet_C"]
+    p2_kpa = p1_kpa * new_pr_scbc
+    
+    # 创建状态点实例
+    compressor_inlet = StatePoint(scbc_fluid, "scbc_compressor_inlet")
+    compressor_inlet.props_from_PT(to_pascal(p1_kpa, 'kpa'), to_kelvin(T1_C))
+    
+    # 预估预冷器出口温度T9随压比的关系（这是一个简化模型，实际需要热力学计算）
+    # 在实际循环中，随着压比增加，预冷器出口温度会受到很多因素影响
+    # 这里使用简单的线性模型作为初步估计: T9 = T1 + k*(PR-3.27)
+    # 其中k是温度对压比的敏感度系数，基于84.38°C和3.27的压比
+
+    base_T9_C = 84.38  # 基准点T9温度
+    base_PR = 3.27     # 基准点压比
+    sensitivity_factor = 5.0  # 温度对压比的敏感度系数，单位: °C/PR单位
+    
+    # 计算新的T9值
+    new_T9_C = base_T9_C + sensitivity_factor * (new_pr_scbc - base_PR)
+    
+    # 限制T9的范围，确保不会出现不合理的温度
+    min_T9_C = T1_C + 30  # 假设预冷器出口至少比压缩机入口高30°C
+    max_T9_C = 120.0      # 假设最大不超过120°C
+    new_T9_C = max(min_T9_C, min(new_T9_C, max_T9_C))
+    
+    # 更新参数
+    params["scbc_parameters"]["T9_precooler_outlet_C"] = new_T9_C
+    print(f"已更新 SCBC: T9_precooler_outlet_C = {new_T9_C:.2f}°C (基于压比 PR = {new_pr_scbc})")
 
     # 2. 更新 ORC 参数
     orc_fluid = params["fluids"]["orc"]
     p_eva_kpa_orc = params["orc_parameters"]["P_eva_kPa_orc"]
+    
+    # 更新ORC透平入口温度目标值
+    params["orc_parameters"]["target_theta_w_orc_turbine_inlet_C"] = new_theta_w_orc_c
+    print(f"已更新 ORC: target_theta_w_orc_turbine_inlet_C = {new_theta_w_orc_c}°C")
+    
+    # 更新ORC膨胀比目标值
+    params["orc_parameters"]["target_pr_orc_expansion_ratio"] = new_pr_orc
+    print(f"已更新 ORC: target_pr_orc_expansion_ratio = {new_pr_orc}")
 
     # 2a. 根据新的 pr_orc 计算并更新 P_cond_kPa_orc
     if new_pr_orc <= 0:
         print("错误: ORC膨胀比 pr_orc 必须大于0。")
         return
     new_p_cond_kpa_orc = p_eva_kpa_orc / new_pr_orc
-    params["orc_parameters"]["P_cond_kPa_orc"] = new_p_cond_kpa_orc
-    print(f"已更新 ORC: P_cond_kPa_orc = {new_p_cond_kpa_orc:.2f} kPa (基于 P_eva={p_eva_kpa_orc} kPa 和 pr_orc={new_pr_orc})")
-
-    # 2b. 根据新的 theta_w_orc_c 计算并更新 delta_T_superheat_orc_K
-    #     需要计算 P_eva_kPa_orc 下的饱和温度
-    state_sat_eva_orc = StatePoint(orc_fluid, "temp_sat_eva_orc_for_delta_T")
-    state_sat_eva_orc.props_from_PQ(to_pascal(p_eva_kpa_orc, 'kpa'), 1.0) # Q=1.0 表示饱和蒸汽
-
-    if state_sat_eva_orc.T is None:
-        print(f"错误: 无法获取工质 {orc_fluid} 在 {p_eva_kpa_orc} kPa 下的饱和温度。无法计算过热度。")
-        return
     
-    t_sat_eva_c = state_sat_eva_orc.T - 273.15
-    new_delta_t_superheat_k = new_theta_w_orc_c - t_sat_eva_c
-    params["orc_parameters"]["delta_T_superheat_orc_K"] = new_delta_t_superheat_k
-    print(f"已更新 ORC: delta_T_superheat_orc_K = {new_delta_t_superheat_k:.2f} K (基于 theta_w={new_theta_w_orc_c}°C 和 Tsat_eva={t_sat_eva_c:.2f}°C)")
-
     # 2c. 根据新的 P_cond_kPa_orc 计算并更新 T_pump_in_C_orc (假设为饱和液体温度)
     state_sat_cond_orc = StatePoint(orc_fluid, "temp_sat_cond_orc_for_pump_in")
     state_sat_cond_orc.props_from_PQ(to_pascal(new_p_cond_kpa_orc, 'kpa'), 0.0) # Q=0.0 表示饱和液体

@@ -322,7 +322,8 @@ def simulate_scbc_orc_cycle(params):
     print("\n蒸发器GO SCBC热侧进口状态 (点8m):")
     print(state8_go_in)
 
-    T9_target_C = scbc_params.get('T9_go_hot_out_C', 125.25)  # 论文中此点温度固定
+    # 使用参数中的T9_precooler_outlet_C替代硬编码值
+    T9_target_C = scbc_params.get('T9_precooler_outlet_C', 84.26)  # 从参数中读取预冷器出口温度，默认为论文值
     state9_go_hot_out, Q_go_scbc_side_J_s = model_cooler_set_T_out(
         state_in=state8_go_in, T_out_K=to_kelvin(T9_target_C), name_suffix="GO_SCBC_HotSide_Final"
     )
@@ -416,14 +417,27 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
         f"SCBC侧GO热源温度范围: {T_scbc_go_hot_in_K - 273.15:.2f}°C (进口) to {T_scbc_go_hot_out_K - 273.15:.2f}°C (出口)")
 
     # ORC参数提取 from orc_params (passed into this function)
-    # These are now GA variables or derived from them by modify_cycle_parameters.py
-    # We should use what's in orc_params (which modify_cycle_parameters.py updates)
-
-    P_eva_orc_kPa = orc_params.get('P_eva_kPa_orc')  # Set by modify_cycle_parameters
-    P_cond_kPa_orc = orc_params.get('P_cond_kPa_orc')  # Set by modify_cycle_parameters based on pr_orc
-    T_pump_in_C_orc = orc_params.get('T_pump_in_C_orc')  # Set by modify_cycle_parameters based on P_cond
-    delta_T_superheat_orc_K = orc_params.get(
-        'delta_T_superheat_orc_K')  # Set by modify_cycle_parameters based on theta_w
+    # 使用新的参数结构
+    P_eva_orc_kPa = orc_params.get('P_eva_kPa_orc')  # 蒸发压力
+    
+    # 使用target_pr_orc_expansion_ratio计算冷凝压力
+    target_pr_orc = orc_params.get('target_pr_orc_expansion_ratio')
+    P_cond_kPa_orc = P_eva_orc_kPa / target_pr_orc if target_pr_orc else None
+    
+    T_pump_in_C_orc = orc_params.get('T_pump_in_C_orc')  # 泵入口温度
+    
+    # 使用target_theta_w_orc_turbine_inlet_C计算过热度
+    target_theta_w_C = orc_params.get('target_theta_w_orc_turbine_inlet_C')
+    
+    # 计算饱和温度以确定过热度
+    _temp_sat_eva_orc_for_dT = StatePoint(orc_fluid, "_temp_sat_eva_orc_for_dT")
+    _temp_sat_eva_orc_for_dT.props_from_PQ(to_pascal(P_eva_orc_kPa, 'kpa'), 1.0)  # Q=1 for saturated vapor
+    
+    if _temp_sat_eva_orc_for_dT.T is not None and target_theta_w_C is not None:
+        T_sat_eva_C = _temp_sat_eva_orc_for_dT.T - 273.15
+        delta_T_superheat_orc_K = target_theta_w_C - T_sat_eva_C
+    else:
+        delta_T_superheat_orc_K = None
 
     eta_P_orc = orc_params.get('eta_PO_pump', 0.75)  # Use eta_PO_pump as per params file
     eta_T_orc = orc_params.get('eta_TO_turbine', 0.8)  # Use eta_TO_turbine
@@ -437,7 +451,7 @@ def simulate_orc_standalone(orc_params, common_params, intermediate_scbc_data):
             f"  P_eva: {P_eva_orc_kPa}, P_cond: {P_cond_kPa_orc}, T_pump_in: {T_pump_in_C_orc}, dT_superheat: {delta_T_superheat_orc_K}")
         return None
 
-    print(f"\nORC主要参数 (来自 modify_cycle_parameters 更新后的参数):")
+    print(f"\nORC主要参数 (从参数文件中读取或计算):")
     print(f"  蒸发压力 P_eva: {P_eva_orc_kPa:.2f} kPa")
     print(f"  冷凝压力 P_cond: {P_cond_kPa_orc:.2f} kPa")
     print(f"  泵进口温度 T_pump_in: {T_pump_in_C_orc:.2f} °C")

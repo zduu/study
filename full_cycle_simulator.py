@@ -10,7 +10,8 @@ from cycle_components import (
     model_cooler_set_T_out,
     model_heater_set_T_out
 )
-import sys  # For redirecting output if needed
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 # Optional: for numerical root finding

@@ -1,0 +1,20 @@
+# 核心计算库
+numpy>=1.20.0
+scipy>=1.7.0
+pandas>=1.3.0
+CoolProp>=6.4.0
+
+# 可视化工具
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# 优化算法
+deap>=1.3.1  # 遗传算法库
+scikit-learn>=1.0.0
+
+# 数据处理
+openpyxl>=3.0.0  # Excel文件处理
+
+# 可选依赖
+jupyter>=1.0.0  # 交互式开发
+tqdm>=4.62.0  # 进度条显示

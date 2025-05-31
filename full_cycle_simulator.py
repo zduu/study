@@ -11,7 +11,7 @@ from cycle_components import (
     model_heater_set_T_out
 )
 import sys  # For redirecting output if needed
-
+sys.stdout.reconfigure(encoding='utf-8')
 
 # Optional: for numerical root finding
 # from scipy.optimize import root_scalar

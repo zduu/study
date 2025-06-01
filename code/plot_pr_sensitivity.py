@@ -73,16 +73,6 @@ def plot_pr_sensitivity(csv_filepath=None, output_filename=None):
     ax1.set_ylabel("Total Thermal Efficiency ηt (%)", color=color_efficiency, fontsize=14)
     line1 = ax1.plot(x_data, df["Total_Thermal_Efficiency_percent"], color=color_efficiency, marker='o', linestyle='-', label="Total Thermal Efficiency ηt (%)")
     
-    # 标注总热效率最高点
-    best_eff_idx = df["Total_Thermal_Efficiency_percent"].idxmax()
-    best_eff_pr = df.loc[best_eff_idx, "PR_scbc"]
-    best_eff = df.loc[best_eff_idx, "Total_Thermal_Efficiency_percent"]
-    ax1.annotate(f"Max Thermal Efficiency: {best_eff:.2f}%\nPR = {best_eff_pr:.2f}", 
-                 xy=(best_eff_pr, best_eff),
-                 xytext=(20, -30), textcoords='offset points',
-                 arrowprops=dict(arrowstyle="->", color=color_efficiency),
-                 color=color_efficiency, fontsize=10)
-    
     ax1.tick_params(axis='y', labelcolor=color_efficiency, labelsize=12)
     ax1.tick_params(axis='x', labelsize=12)
 
@@ -100,31 +90,11 @@ def plot_pr_sensitivity(csv_filepath=None, output_filename=None):
     ax2.set_ylabel("SCBC Net Power Ps (MW)", color=color_scbc_power, fontsize=14)
     line2 = ax2.plot(x_data, df["SCBC_Net_Power_MW"], color=color_scbc_power, marker='s', linestyle='--', label="SCBC Net Power Ps (MW)")
     
-    # 标注SCBC净功最高点
-    best_scbc_idx = df["SCBC_Net_Power_MW"].idxmax()
-    best_scbc_pr = df.loc[best_scbc_idx, "PR_scbc"]
-    best_scbc = df.loc[best_scbc_idx, "SCBC_Net_Power_MW"]
-    ax2.annotate(f"Max SCBC Power: {best_scbc:.2f} MW\nPR = {best_scbc_pr:.2f}", 
-                 xy=(best_scbc_pr, best_scbc),
-                 xytext=(-100, 20), textcoords='offset points',
-                 arrowprops=dict(arrowstyle="->", color=color_scbc_power),
-                 color=color_scbc_power, fontsize=10)
-    
     ax2.tick_params(axis='y', labelcolor=color_scbc_power, labelsize=12)
 
     # 配置 ax3 (ORC净功)
     ax3.set_ylabel("ORC Net Power Po (MW)", color=color_orc_power, fontsize=14)
     line3 = ax3.plot(x_data, df["ORC_Net_Power_MW"], color=color_orc_power, marker='^', linestyle=':', label="ORC Net Power Po (MW)")
-    
-    # 标注ORC净功最高点
-    best_orc_idx = df["ORC_Net_Power_MW"].idxmax()
-    best_orc_pr = df.loc[best_orc_idx, "PR_scbc"]
-    best_orc = df.loc[best_orc_idx, "ORC_Net_Power_MW"]
-    ax3.annotate(f"Max ORC Power: {best_orc:.2f} MW\nPR = {best_orc_pr:.2f}", 
-                 xy=(best_orc_pr, best_orc),
-                 xytext=(20, 20), textcoords='offset points',
-                 arrowprops=dict(arrowstyle="->", color=color_orc_power),
-                 color=color_orc_power, fontsize=10)
     
     ax3.tick_params(axis='y', labelcolor=color_orc_power, labelsize=12)
 
@@ -238,11 +208,6 @@ def plot_exergy_efficiency(csv_filepath=None, output_filename=None):
     if is_carnot_constant and carnot_value is not None:
         carnot_line = ax1.axhline(y=carnot_value, color='tab:orange', linestyle='--', 
                                  label=f"Theoretical Carnot Efficiency: {carnot_value:.2f}%")
-        # 添加注释
-        ax1.annotate(f"Carnot Efficiency: {carnot_value:.2f}%", 
-                     xy=(x_data.iloc[-1], carnot_value),
-                     xytext=(10, 10), textcoords='offset points',
-                     color='tab:orange', fontsize=10)
     
     ax1.tick_params(axis='y', labelsize=12)
     ax1.tick_params(axis='x', labelsize=12)
@@ -269,14 +234,6 @@ def plot_exergy_efficiency(csv_filepath=None, output_filename=None):
         line2 = ax2.plot(x_data, df["Exergy_Eff_to_Carnot_Ratio"], color=color_ratio, marker='^', 
                         linestyle=':', label="Exergy/Carnot Efficiency Ratio")
         ax2.tick_params(axis='y', labelcolor=color_ratio, labelsize=12)
-        
-        # 添加注释
-        if is_carnot_constant:
-            ax2.annotate("Ratio curve shape matches exergy efficiency\nbecause Carnot efficiency is constant", 
-                         xy=(x_data.iloc[len(x_data)//2], df["Exergy_Eff_to_Carnot_Ratio"].iloc[len(x_data)//2]),
-                         xytext=(0, 30), textcoords='offset points',
-                         arrowprops=dict(arrowstyle="->", color=color_ratio),
-                         color=color_ratio, fontsize=10)
     else:
         print("警告：找不到'Exergy_Eff_to_Carnot_Ratio'列，跳过火用/卡诺比图")
 
@@ -300,18 +257,6 @@ def plot_exergy_efficiency(csv_filepath=None, output_filename=None):
 
     # 6. 启用网格线
     ax1.grid(True, linestyle='--', alpha=0.7)
-    
-    # 标注最佳点
-    if "Total_Exergy_Efficiency_percent" in df.columns:
-        best_idx = df["Total_Exergy_Efficiency_percent"].idxmax()
-        best_pr = df.loc[best_idx, "PR_scbc"]
-        best_exergy = df.loc[best_idx, "Total_Exergy_Efficiency_percent"]
-        
-        ax1.annotate(f"Max Exergy Efficiency: {best_exergy:.2f}%\nat PR_scbc = {best_pr:.2f}", 
-                     xy=(best_pr, best_exergy),
-                     xytext=(20, -30), textcoords='offset points',
-                     arrowprops=dict(arrowstyle="->", color=color_exergy),
-                     color=color_exergy, fontsize=10)
 
     # 调整布局
     fig.tight_layout(rect=[0, 0.1, 1, 0.95])

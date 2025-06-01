@@ -16,7 +16,7 @@ PR_ORC = 3.37  # ORC透平膨胀比
 THETA_W_C = 127.76  # ORC透平入口温度 (°C)
 
 # 2. 定义 PR_scbc 的扫描范围
-# 从 2.2 到 4.0 (包含边界)，步长为 0.2
+# 从 2.2 到 4.0 (包含边界)，步长为 0.1
 PR_SCBC_RANGE = numpy.arange(2.2, 4.0 + 0.1, 0.1)
 
 # 3. 定义结果输出文件名
@@ -103,7 +103,7 @@ def main():
             return
 
         # 2. 定义PR_scbc范围
-        pr_range = np.linspace(2.2, 4.0, 19)  # 从2.2到4.0，取10个点
+        pr_range = np.linspace(2.2, 4.0, 19)  # 从2.2到4.0，取19个点
         
         # 3. 创建结果存储结构
         results = []
@@ -119,19 +119,19 @@ def main():
             print(f"\n[{i+1}/{len(pr_range)}] 分析 PR_scbc = {pr_value:.4f}")
             start_time = time.time()
             
-            # 运行modify_cycle_parameters.py修改参数
+            # 运行modify_cycle_parameters.py重新生成参数
             modify_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modify_cycle_parameters.py")
             modify_cmd = [
                 "python", modify_script_path,
-                "--pr_scbc", str(pr_value),
                 "--t5_c", str(T5_C),
+                "--pr_scbc", str(pr_value),
                 "--pr_orc", str(PR_ORC),
                 "--theta_w_c", str(THETA_W_C)
             ]
             
             try:
                 subprocess.run(modify_cmd, check=True, capture_output=True)
-                print(f"  成功修改参数: PR_scbc = {pr_value:.4f}")
+                print(f"  成功重新生成参数: PR_scbc = {pr_value:.4f}")
                 
                 # 运行full_cycle_simulator.py
                 simulator_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "full_cycle_simulator.py")

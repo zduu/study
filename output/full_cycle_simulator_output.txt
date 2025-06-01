@@ -1,4 +1,4 @@
-成功从 /Users/zhouzhou/Desktop/edit/study/output/cycle_setup_parameters.json 加载循环参数。
+成功从 c:\Users\30752\Desktop\guest\study\output\cycle_setup_parameters.json 加载循环参数。
 
 --- 开始SCBC/ORC联合循环仿真 (固定Q_ER, 迭代质量流量) ---
 目标吸热器热量 Q_ER_target: 600.00 MW
@@ -177,26 +177,26 @@ ORC工质: R245fa
 SCBC侧GO热源温度范围: 163.52°C (进口) to 88.03°C (出口)
 
 ORC主要参数 (从参数文件中读取或计算):
-  蒸发压力 P_eva: 1443.37 kPa
-  冷凝压力 P_cond: 428.30 kPa
-  泵进口温度 T_pump_in: 57.33 °C
-  目标过热度 delta_T_superheat: 21.73 K
+  蒸发压力 P_eva: 1620.61 kPa
+  冷凝压力 P_cond: 480.89 kPa
+  泵进口温度 T_pump_in: 61.38 °C
+  目标过热度 delta_T_superheat: 16.28 K
   泵效率 η_PO_pump: 0.75
   透平效率 η_TO_turbine: 0.8
-信息: 将ORC泵进口 (点o1) 设置为在压力 428.30 kPa下的饱和液体状态 (Q=0)。
+信息: 将ORC泵进口 (点o1) 设置为在压力 480.89 kPa下的饱和液体状态 (Q=0)。
 
 --- ORC独立循环仿真完成 ---
-ORC净输出功: 13.54 MW
-ORC热效率: 8.28%
-ORC火用效率: 23.48%
+ORC净输出功: 13.60 MW
+ORC热效率: 8.32%
+ORC火用效率: 23.58%
 
 
 --- 联合循环总性能 ---
 SCBC净输出功: 247.75 MW
-ORC净输出功: 13.54 MW
-联合循环总净输出功: 261.28 MW
-DEBUG: Q_in_scbc_MW_final = 600.4398503358019
-DEBUG: W_net_combined_MW = 261.28051378761967
+ORC净输出功: 13.60 MW
+联合循环总净输出功: 261.34 MW
+DEBUG: Q_in_scbc_MW_final = 600.4398503358066
+DEBUG: W_net_combined_MW = 261.3420823675219
 DEBUG: T_er_source_K for exergy calc = 873.0
-联合循环总热效率: 43.51%
-联合循环总㶲效率: 64.36%
+联合循环总热效率: 43.53%
+联合循环总㶲效率: 64.37%

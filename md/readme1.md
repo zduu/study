@@ -88,6 +88,8 @@ T9 = base_T9 + sensitivity_factor * (PR - base_PR)
 - **总热效率与功率关系图**：展示压比对总热效率、SCBC净功率和ORC净功率的影响
 - **火用效率分析图**：展示压比对总火用效率的影响，并标注卡诺效率基准线
 
+图表设计采用清晰的曲线表示，不显示最高点标注，便于用户自行分析性能趋势。
+
 ### 3.5 多目标优化
 使用遗传算法(`genetic_algorithm_optimizer.py`)实现系统参数的多目标优化，同时考虑热效率、㶲效率和系统成本。
 
@@ -181,7 +183,7 @@ T9 = base_T9 + sensitivity_factor * (PR - base_PR)
    python full_cycle_simulator.py
    ```
 
-3. **修改关键变量**
+3. **重新生成参数文件**
    ```bash
    python modify_cycle_parameters.py --t5_c 599.85 --pr_scbc 3.2 --pr_orc 3.37 --theta_w_c 127.76
    ```
@@ -214,7 +216,7 @@ T9 = base_T9 + sensitivity_factor * (PR - base_PR)
 - `state_point_calculator.py`: 状态点计算与物性模块
 - `cycle_components.py`: 循环组件模型库
 - `full_cycle_simulator.py`: 完整循环模拟器
-- `modify_cycle_parameters.py`: 参数修改工具
+- `modify_cycle_parameters.py`: 参数生成工具
 - `run_pr_sensitivity_analysis.py`: 敏感性分析工具
 - `plot_pr_sensitivity.py`: 结果可视化工具
 - `genetic_algorithm_optimizer.py`: 多目标优化模块
@@ -223,7 +225,7 @@ T9 = base_T9 + sensitivity_factor * (PR - base_PR)
 1. `state_point_calculator.py` 提供物性计算能力
 2. `cycle_components.py` 实现各组件的数学模型
 3. `full_cycle_simulator.py` 集成组件模型模拟完整循环
-4. `modify_cycle_parameters.py` 修改系统参数
+4. `modify_cycle_parameters.py` 根据关键变量重新生成系统参数
 5. `run_pr_sensitivity_analysis.py` 执行参数扫描分析
 6. `plot_pr_sensitivity.py` 绘制性能曲线图表
 7. `genetic_algorithm_optimizer.py` 执行系统优化

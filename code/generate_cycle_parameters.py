@@ -141,7 +141,7 @@ def calculate_parameters_from_key_variables(new_t5_c, new_pr_scbc, new_pr_orc, n
     # 计算ORC蒸发温度（基于SCBC GO热侧温度）
     T8_GO_HotIn = new_T9_C + 63.29  # 基于基准值计算
     T9_GO_HotOut = new_T9_C
-    T_eva_orc = (T8_GO_HotIn + T9_GO_HotOut) / 2 - 10  # 20K最小温差
+    T_eva_orc = (T8_GO_HotIn + T9_GO_HotOut) / 2 - 8.2  # 20K最小温差
     
     # 计算ORC蒸发压力
     orc_state.props_from_TQ(to_kelvin(T_eva_orc), 1.0)

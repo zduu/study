@@ -66,16 +66,6 @@ def plot_pr_sensitivity_cn(csv_filepath=None, output_filename=None):
     ax1.set_ylabel("效率 (%)", color=color_eff, fontsize=14)
     line1 = ax1.plot(x_data, df["总热效率(%)"], color=color_eff, marker='o', linestyle='-', label="总热效率(%)")
     
-    # 标注总热效率最高点
-    best_eff_idx = df["总热效率(%)"].idxmax()
-    best_eff_pr = df.loc[best_eff_idx, "主循环压比(PR_scbc)"]
-    best_eff = df.loc[best_eff_idx, "总热效率(%)"]
-    ax1.annotate(f"最高热效率: {best_eff:.2f}%\n压比 = {best_eff_pr:.2f}", 
-                 xy=(best_eff_pr, best_eff),
-                 xytext=(20, -30), textcoords='offset points',
-                 arrowprops=dict(arrowstyle="->", color=color_eff),
-                 color=color_eff, fontsize=10)
-    
     ax1.tick_params(axis='y', labelcolor=color_eff, labelsize=12)
     ax1.tick_params(axis='x', labelsize=12)
 
@@ -85,16 +75,6 @@ def plot_pr_sensitivity_cn(csv_filepath=None, output_filename=None):
     ax2.set_ylabel("SCBC净功(MW)", color=color_scbc, fontsize=14)
     line2 = ax2.plot(x_data, df["SCBC净功(MW)"], color=color_scbc, marker='s', linestyle='--', label="SCBC净功(MW)")
     
-    # 标注SCBC净功最高点
-    best_scbc_idx = df["SCBC净功(MW)"].idxmax()
-    best_scbc_pr = df.loc[best_scbc_idx, "主循环压比(PR_scbc)"]
-    best_scbc = df.loc[best_scbc_idx, "SCBC净功(MW)"]
-    ax2.annotate(f"最高SCBC净功: {best_scbc:.2f} MW\n压比 = {best_scbc_pr:.2f}", 
-                 xy=(best_scbc_pr, best_scbc),
-                 xytext=(-100, 20), textcoords='offset points',
-                 arrowprops=dict(arrowstyle="->", color=color_scbc),
-                 color=color_scbc, fontsize=10)
-    
     ax2.tick_params(axis='y', labelcolor=color_scbc, labelsize=12)
 
     # 再次Y轴 - ORC净功
@@ -103,16 +83,6 @@ def plot_pr_sensitivity_cn(csv_filepath=None, output_filename=None):
     ax3.spines["right"].set_position(("outward", 60))
     ax3.set_ylabel("ORC净功(MW)", color=color_orc, fontsize=14)
     line3 = ax3.plot(x_data, df["ORC净功(MW)"], color=color_orc, marker='^', linestyle=':', label="ORC净功(MW)")
-    
-    # 标注ORC净功最高点
-    best_orc_idx = df["ORC净功(MW)"].idxmax()
-    best_orc_pr = df.loc[best_orc_idx, "主循环压比(PR_scbc)"]
-    best_orc = df.loc[best_orc_idx, "ORC净功(MW)"]
-    ax3.annotate(f"最高ORC净功: {best_orc:.2f} MW\n压比 = {best_orc_pr:.2f}", 
-                 xy=(best_orc_pr, best_orc),
-                 xytext=(20, 20), textcoords='offset points',
-                 arrowprops=dict(arrowstyle="->", color=color_orc),
-                 color=color_orc, fontsize=10)
     
     ax3.tick_params(axis='y', labelcolor=color_orc, labelsize=12)
 

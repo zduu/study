@@ -231,8 +231,8 @@
 
 1.  **编辑与修改**:
     *   可以直接用文本编辑器打开并修改 `cycle_setup_parameters.json` 文件中的参数值。
-    *   也可以通过提供的参数修改脚本 (如 `modify_cycle_parameters.py` [2]) 来更新特定的关键参数。
-    *   使用 `calculate_parameters_from_key_variables` 函数基于四个关键变量计算其他参数。
+    *   也可以通过提供的参数生成脚本 (如 `modify_cycle_parameters.py` [2]) 来根据四个关键参数重新生成参数文件。
+    *   使用 `generate_cycle_parameters.py` 中的 `calculate_parameters_from_key_variables` 函数基于四个关键变量计算其他参数。
 
 2.  **加载与执行**:
     *   主模拟脚本 `full_cycle_simulator.py` 在启动时会加载此文件中的参数 [1][6] 来配置和运行循环模拟。
@@ -244,4 +244,3 @@
     *   对于作为优化目标的参数 (如 `T5_turbine_inlet_C`, `PR_scbc_mc_rc`, `target_PR_orc_expansion_ratio`, `target_theta_w_orc_turbine_inlet_C`)，其值会由优化算法在定义的范围内调整。
 
 此文档提供了对 `cycle_setup_parameters.json` 文件中常见参数的解释。根据具体的模拟器实现，可能会有额外的参数或不同的命名方式。建议参考模拟器代码中的参数加载部分 (`load_cycle_parameters` 函数 [1]) 和各部件模型的调用 [6] 以获取最准确的参数列表和作用。
-```

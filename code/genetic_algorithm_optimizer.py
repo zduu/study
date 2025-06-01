@@ -26,11 +26,11 @@ VAR_BOUNDS = {
 VAR_NAMES = ["theta_5_c", "pr_scbc", "theta_w_c", "pr_orc"]
 
 # Paths to your existing scripts
-MODIFY_PARAMS_SCRIPT = "modify_cycle_parameters.py"
-SIMULATOR_SCRIPT = "full_cycle_simulator.py"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODIFY_PARAMS_SCRIPT = os.path.join(SCRIPT_DIR, "modify_cycle_parameters.py")
+SIMULATOR_SCRIPT = os.path.join(SCRIPT_DIR, "full_cycle_simulator.py")
 
 # 获取项目根目录和output文件夹路径
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
 PARAMS_JSON_FILE = os.path.join(OUTPUT_DIR, "cycle_setup_parameters.json")

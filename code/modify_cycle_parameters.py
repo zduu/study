@@ -1,5 +1,6 @@
 import json
 from state_point_calculator import StatePoint, to_pascal, to_kelvin
+import os
 
 def update_cycle_parameters(
     new_t5_c: float,
@@ -31,14 +32,31 @@ def update_cycle_parameters(
     if not (2.2 <= new_pr_orc <= 4.0):
         print(f"错误: ORC透平膨胀比 new_pr_orc ({new_pr_orc}) 超出允许范围 [2.2, 4.0]。")
         return
+    
+    # 尝试找到参数文件
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    
+    # 首先尝试在output目录中查找文件
+    output_dir = os.path.join(project_root, "output")
+    output_file_path = os.path.join(output_dir, params_filepath)
+    
+    # 如果output目录中不存在该文件，则尝试从当前目录加载
+    if not os.path.exists(output_file_path):
+        output_file_path = os.path.join(script_dir, params_filepath)
+    
+    # 如果都不存在，则使用原始路径
+    if not os.path.exists(output_file_path):
+        output_file_path = params_filepath
+    
     try:
-        with open(params_filepath, 'r', encoding='utf-8') as f:
+        with open(output_file_path, 'r', encoding='utf-8') as f:
             params = json.load(f)
     except FileNotFoundError:
-        print(f"错误: 参数文件 {params_filepath} 未找到。")
+        print(f"错误: 参数文件 {output_file_path} 未找到。")
         return
     except json.JSONDecodeError:
-        print(f"错误: 参数文件 {params_filepath} 格式不正确。")
+        print(f"错误: 参数文件 {output_file_path} 格式不正确。")
         return
 
     # 1. 更新 SCBC 参数
@@ -109,11 +127,11 @@ def update_cycle_parameters(
 
     # 3. 写回JSON文件
     try:
-        with open(params_filepath, 'w', encoding='utf-8') as f:
+        with open(output_file_path, 'w', encoding='utf-8') as f:
             json.dump(params, f, indent=4, ensure_ascii=False)
-        print(f"参数已成功更新并写回到 {params_filepath}")
+        print(f"参数已成功更新并写回到 {output_file_path}")
     except IOError:
-        print(f"错误: 无法写入参数文件 {params_filepath}。")
+        print(f"错误: 无法写入参数文件 {output_file_path}。")
 
 if __name__ == "__main__":
     import argparse

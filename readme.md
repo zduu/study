@@ -1,7 +1,4 @@
 ## 下一步：
-- 预计优化代码目录结构（现在还没做的咕～
-- 暂时可以忽视各种文件夹
-- 记得改文档喵～
 - 文档说明请看readme1.md
 - 代码说明请看system_overview.md
 - 安装python环境指令`pip install -r requirements.txt`

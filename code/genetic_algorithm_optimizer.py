@@ -28,7 +28,18 @@ VAR_NAMES = ["theta_5_c", "pr_scbc", "theta_w_c", "pr_orc"]
 # Paths to your existing scripts
 MODIFY_PARAMS_SCRIPT = "modify_cycle_parameters.py"
 SIMULATOR_SCRIPT = "full_cycle_simulator.py"
-PARAMS_JSON_FILE = "cycle_setup_parameters.json"
+
+# 获取项目根目录和output文件夹路径
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
+PARAMS_JSON_FILE = os.path.join(OUTPUT_DIR, "cycle_setup_parameters.json")
+
+# 如果output文件夹不存在，则尝试使用当前目录中的文件
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+if not os.path.exists(PARAMS_JSON_FILE):
+    PARAMS_JSON_FILE = os.path.join(SCRIPT_DIR, "cycle_setup_parameters.json")
 
 # Fitness function weights: F(x) = alpha*eta_t + beta*eta_e - gamma*C(x)
 # Setting alpha and beta for thermal and exergy efficiency, gamma for cost (currently 0)
@@ -292,7 +303,10 @@ def run_genetic_algorithm():
     population = initialize_population()
     best_overall_individual = None
 
-    log_filename = "ga_optimization_log.csv"
+    # 设置日志文件路径到output文件夹
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    log_filename = os.path.join(OUTPUT_DIR, "ga_optimization_log.csv")
+    
     with open(log_filename, 'w', encoding='utf-8', newline='') as log_file:
         log_writer = csv.writer(log_file)
         log_writer.writerow(["Generation", "Individual", "theta_5_c", "pr_scbc", "theta_w_c", "pr_orc",

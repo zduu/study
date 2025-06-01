@@ -1,7 +1,8 @@
 # cycle_components.py
 
 import sys
-from init.state_point_calculator import StatePoint # 假设 'state_point_calculator.py' 在同一目录或Python路径中
+import os
+from state_point_calculator import StatePoint # 假设 'state_point_calculator.py' 在同一目录或Python路径中
 # 如果 StatePoint 类依赖全局的 T0_K, P0_PA 进行㶲计算，
 # 确保 '状态点计算.py' 中的这些值是您希望使用的。
 
@@ -9,7 +10,11 @@ from init.state_point_calculator import StatePoint # 假设 'state_point_calcula
 class TeeOutput:
     def __init__(self, filename):
         self.terminal = sys.stdout
-        self.file = open(filename, 'w', encoding='utf-8')
+        # 确保输出目录存在
+        output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output")
+        os.makedirs(output_dir, exist_ok=True)
+        output_file = os.path.join(output_dir, filename)
+        self.file = open(output_file, 'w', encoding='utf-8')
 
     def write(self, message):
         self.terminal.write(message)
@@ -439,7 +444,7 @@ if __name__ == '__main__':
         # --- 测试 model_compressor_MC ---
         # (此部分测试代码保持不变)
         print("--- 测试主压缩机 (MC) 模型 ---")
-        from init.state_point_calculator import to_kelvin, to_pascal
+        from state_point_calculator import to_kelvin, to_pascal
 
         P1_Pa_test_mc = to_pascal(7400.00, 'kpa') # Renamed for clarity
         T1_K_test_mc = to_kelvin(35.00)    # Renamed for clarity

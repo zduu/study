@@ -216,11 +216,14 @@ if __name__ == "__main__":
         output_csv_data.append(csv_row)
     print("="*120)
 
-
     # 获取当前脚本所在目录，确保输出文件与代码同级
     import os
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_filename = os.path.join(script_dir, "calculated_state_points_from_table10.csv")
+    project_root = os.path.dirname(script_dir)
+    output_dir = os.path.join(project_root, "output")
+    os.makedirs(output_dir, exist_ok=True)
+    
+    csv_filename = os.path.join(output_dir, "calculated_state_points_from_table10.csv")
     try:
         import csv # Already imported at top
         with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
@@ -273,7 +276,7 @@ if __name__ == "__main__":
         }
     }
 
-    params_filename = os.path.join(script_dir, "cycle_setup_parameters.json")
+    params_filename = os.path.join(output_dir, "cycle_setup_parameters.json")
     try:
         with open(params_filename, 'w', encoding='utf-8') as f:
             json.dump(cycle_parameters, f, ensure_ascii=False, indent=4)

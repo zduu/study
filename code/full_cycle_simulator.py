@@ -57,15 +57,39 @@ def calculate_theoretical_exergy_efficiency(T_source_K):
 def load_cycle_parameters(filename="cycle_setup_parameters.json"):
     """从JSON文件加载循环设定参数"""
     try:
+        # 首先尝试在output目录中查找文件
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(script_dir)
+        output_dir = os.path.join(project_root, "output")
+        output_file_path = os.path.join(output_dir, filename)
+        
+        # 如果output目录中存在该文件，则从output目录加载
+        if os.path.exists(output_file_path):
+            with open(output_file_path, 'r', encoding='utf-8') as f:
+                params = json.load(f)
+            print(f"成功从 {output_file_path} 加载循环参数。")
+            return params
+        
+        # 如果output目录中不存在该文件，则尝试从当前目录加载
+        current_dir_path = os.path.join(script_dir, filename)
+        if os.path.exists(current_dir_path):
+            with open(current_dir_path, 'r', encoding='utf-8') as f:
+                params = json.load(f)
+            print(f"成功从 {current_dir_path} 加载循环参数。")
+            return params
+            
+        # 如果都不存在，则尝试直接按提供的文件名加载
         with open(filename, 'r', encoding='utf-8') as f:
             params = json.load(f)
         print(f"成功从 {filename} 加载循环参数。")
         return params
     except FileNotFoundError:
-        print(f"错误: 参数文件 {filename} 未找到。请先运行 状态点计算.py 生成该文件。")
+        print(f"错误: 参数文件未找到。请先运行 state_point_calculator.py 生成该文件。")
+        print(f"已尝试以下路径: {output_file_path}, {current_dir_path}, {filename}")
         return None
     except json.JSONDecodeError:
-        print(f"错误: 参数文件 {filename} 格式不正确，无法解析。")
+        print(f"错误: 参数文件格式不正确，无法解析。")
         return None
     except Exception as e:
         print(f"加载参数文件时发生未知错误: {e}")

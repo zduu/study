@@ -120,8 +120,9 @@ def main():
             start_time = time.time()
             
             # 运行modify_cycle_parameters.py修改参数
+            modify_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modify_cycle_parameters.py")
             modify_cmd = [
-                "python", "modify_cycle_parameters.py",
+                "python", modify_script_path,
                 "--pr_scbc", str(pr_value),
                 "--t5_c", str(T5_C),
                 "--pr_orc", str(PR_ORC),
@@ -133,8 +134,9 @@ def main():
                 print(f"  成功修改参数: PR_scbc = {pr_value:.4f}")
                 
                 # 运行full_cycle_simulator.py
-                simulate_cmd = ["python", "full_cycle_simulator.py"]
-                sim_result = subprocess.run(simulate_cmd, check=True, capture_output=True, text=True)
+                simulator_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "full_cycle_simulator.py")
+                simulate_cmd = ["python", simulator_script_path]
+                sim_result = subprocess.run(simulate_cmd, check=True, capture_output=True, text=True, encoding='utf-8')
                 output_text = sim_result.stdout
                 
                 # 从输出文本中提取指标
@@ -185,14 +187,13 @@ def main():
                     writer.writerow(result_headers)
                     writer.writerows(results)
                 print(f"\n结果已保存到: {output_csv_path}")
-                
-                # 6. 绘制图表
-                try:
-                    from plot_pr_sensitivity import plot_pr_sensitivity
-                    plot_pr_sensitivity(output_csv_path)
-                    print("已生成敏感性分析图表")
-                except Exception as e:
-                    print(f"绘制图表时发生错误: {e}")
+                # 删除自动绘制和提示图表的相关代码
+                # try:
+                #     from plot_pr_sensitivity import plot_pr_sensitivity
+                #     plot_pr_sensitivity(output_csv_path)
+                #     print("已生成敏感性分析图表")
+                # except Exception as e:
+                #     print(f"绘制图表时发生错误: {e}")
             except Exception as e:
                 print(f"\n保存CSV时发生错误: {e}")
         else:

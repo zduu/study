@@ -6,7 +6,24 @@
 
 ## 2. 核心代码文件结构
 
-### 2.1 基础物性计算模块
+### 2.1 关键变量计算模块
+
+#### `generate_cycle_parameters.py`
+* **核心功能**：基于四个关键变量计算系统参数
+* **主要组件**：
+  * `calculate_parameters_from_key_variables`函数：根据四个关键变量计算其他参数
+  * 参数文件生成器：创建系统配置文件`cycle_setup_parameters.json`
+* **关键变量**：
+  * SCBC透平入口温度(T5)：599.85°C
+  * SCBC主循环压比(PR)：3.27
+  * ORC透平膨胀比：3.37
+  * ORC透平入口温度：127.76°C
+* **计算参数**：
+  * 预冷器出口温度(T9)：动态计算
+  * ORC蒸发压力：根据ORC参数计算
+  * ORC泵入口温度：根据冷凝条件计算
+
+### 2.2 基础物性计算模块
 
 #### `state_point_calculator.py`
 * **核心功能**：提供热力学状态点的物性计算功能
@@ -17,7 +34,7 @@
 * **验证功能**：对比计算值与论文数据，输出到`calculated_state_points_from_table10.csv`
 * **环境参考态**：使用T0=9.56°C, P0=101.382 kPa作为㶲计算参考点
 
-### 2.2 循环组件模型库
+### 2.3 循环组件模型库
 
 #### `cycle_components.py`
 * **核心功能**：定义循环中各组件的数学模型
@@ -32,7 +49,7 @@
 * **依赖关系**：依赖`state_point_calculator.py`中的`StatePoint`类
 * **输出文件**：组件测试结果输出到`cycle_components_output.txt`
 
-### 2.3 完整循环模拟器
+### 2.4 完整循环模拟器
 
 #### `full_cycle_simulator.py`
 * **核心功能**：模拟完整的SCBC-ORC联合循环系统
@@ -49,19 +66,19 @@
   * 卡诺效率计算：`1 - T0_K / T_source_K`，其中`T_source_K`为透平入口温度(T5)
   * 火用效率计算：`W_net / (Q_in * (1 - T0_K / T_source_K))`
 
-### 2.4 参数修改工具
+### 2.5 参数修改工具
 
 #### `modify_cycle_parameters.py`
-* **核心功能**：修改循环系统的关键参数
+* **核心功能**：修改循环系统的关键变量
 * **主要功能**：
   * 读取现有参数文件：加载`cycle_setup_parameters.json`
-  * 修改关键参数：透平入口温度、压比、ORC膨胀比等
-  * T9温度计算：根据压比动态调整预冷器出口温度
+  * 修改关键变量：透平入口温度、压比、ORC膨胀比等
+  * 参数计算：调用`calculate_parameters_from_key_variables`计算其他参数
   * 参数写回：将修改后的参数保存回JSON文件
 * **命令行接口**：支持通过命令行参数直接修改系统配置
-* **依赖关系**：独立工具，仅依赖系统参数文件
+* **依赖关系**：依赖`generate_cycle_parameters.py`进行参数计算
 
-### 2.5 参数敏感性分析工具
+### 2.6 参数敏感性分析工具
 
 #### `run_pr_sensitivity_analysis.py`
 * **核心功能**：执行系统参数的敏感性分析
@@ -76,7 +93,7 @@
   * 敏感性分析过程中保持透平入口温度T5不变
   * 卡诺效率保持不变是设计选择，以便隔离压比变化的纯粹影响
 
-### 2.6 结果可视化工具
+### 2.7 结果可视化工具
 
 #### `plot_pr_sensitivity.py`
 * **核心功能**：绘制参数敏感性分析的结果图表
@@ -90,7 +107,7 @@
   * 火用效率图：显示总火用效率、卡诺效率与压比的关系
 * **依赖关系**：依赖matplotlib、pandas等库，不依赖其他项目文件
 
-### 2.7 优化算法模块
+### 2.8 优化算法模块
 
 #### `genetic_algorithm_optimizer.py`
 * **核心功能**：使用遗传算法优化系统参数
@@ -110,11 +127,20 @@
 #### `cycle_setup_parameters.json`
 * **功能**：存储系统的完整参数配置
 * **主要参数**：
-  * 工质定义：SCBC使用CO2，ORC使用R245fa
-  * 环境参考条件：T0_C和P0_kPa
-  * SCBC参数：压缩机入口条件、透平入口温度、压比、部件效率等
-  * ORC参数：蒸发压力、膨胀比、部件效率等
-  * 换热器参数：最小温差、效能值等
+  * 关键变量：
+    - SCBC透平入口温度(T5)
+    - SCBC主循环压比(PR)
+    - ORC透平膨胀比
+    - ORC透平入口温度
+  * 计算参数：
+    - 预冷器出口温度(T9)
+    - ORC蒸发压力
+    - ORC泵入口温度
+  * 固定参数：
+    - 工质定义：SCBC使用CO2，ORC使用R245fa
+    - 环境参考条件：T0_C和P0_kPa
+    - 部件效率：压缩机、透平、泵等
+    - 换热器参数：最小温差、效能值等
 * **使用方式**：被循环模拟器和参数修改工具读取和修改
 
 ### 3.2 结果数据文件
@@ -158,11 +184,11 @@
    ```
    使用当前参数执行完整循环模拟
 
-3. **修改系统参数**
+3. **修改关键变量**
    ```bash
    python modify_cycle_parameters.py --t5_c 599.85 --pr_scbc 3.2 --pr_orc 3.37 --theta_w_c 127.76
    ```
-   更新系统关键参数
+   更新系统关键变量并计算其他参数
 
 4. **执行参数敏感性分析**
    ```bash
@@ -186,6 +212,9 @@
 
 ```
 state_point_calculator.py  ────┐
+                               │
+                               ▼
+generate_cycle_parameters.py ←─┐
                                │
                                ▼
 cycle_components.py ────> full_cycle_simulator.py <──── cycle_setup_parameters.json
@@ -212,7 +241,47 @@ modify_cycle_parameters.py <─> run_pr_sensitivity_analysis.py ──> pr_sensi
 
 ## 5. 关键参数说明
 
-### 5.1 SCBC循环参数
+### 5.1 关键变量
+
+* **T5_turbine_inlet_C**：SCBC透平入口温度(°C)
+  * 影响循环效率和功率输出
+  * 优化值：599.85°C
+  * 范围：500-600°C
+  * 特别说明：在敏感性分析中保持不变，因此卡诺效率在不同压比下也保持不变
+
+* **PR_scbc_mc_rc**：SCBC主循环压比
+  * 影响循环效率和功率输出
+  * 优化值：3.27
+  * 范围：2.2-4.0
+  * 特别说明：是敏感性分析的主要变量，对总热效率和火用效率有显著影响
+
+* **target_PR_orc_expansion_ratio**：ORC透平膨胀比
+  * 影响ORC功率输出
+  * 优化值：3.37
+  * 范围：2.0-4.0
+
+* **target_theta_w_orc_turbine_inlet_C**：ORC透平入口温度(°C)
+  * 影响ORC效率和可用能
+  * 优化值：127.76°C
+  * 范围：100-130°C
+
+### 5.2 计算参数
+
+* **T9_precooler_outlet_C**：预冷器出口温度(°C)
+  * 随压比动态变化
+  * 基准值：84.38°C (对应压比3.27)
+  * 变化关系：T9 = base_T9 + sensitivity_factor * (PR - base_PR)
+  * 特别说明：影响ORC循环的可用热量和总系统性能
+
+* **P_eva_kPa_orc**：ORC蒸发压力(kPa)
+  * 根据ORC透平入口温度和膨胀比计算
+  * 默认值：1156.61 kPa
+
+* **T_pump_inlet_orc_C**：ORC泵入口温度(°C)
+  * 根据冷凝温度和过冷度计算
+  * 默认值：49.90°C
+
+### 5.3 SCBC循环参数
 
 * **T5_turbine_inlet_C**：SCBC透平入口温度(°C)
   * 影响循环效率和功率输出
@@ -232,7 +301,7 @@ modify_cycle_parameters.py <─> run_pr_sensitivity_analysis.py ──> pr_sensi
   * 变化关系：T9 = base_T9 + sensitivity_factor * (PR - base_PR)
   * 特别说明：影响ORC循环的可用热量和总系统性能
 
-### 5.2 ORC循环参数
+### 5.4 ORC循环参数
 
 * **target_theta_w_orc_turbine_inlet_C**：ORC透平入口温度(°C)
   * 影响ORC效率和可用能

@@ -725,14 +725,48 @@ def output_to_file(filename, code_to_run, *args_for_code):  # Modified to accept
 
 if __name__ == '__main__':
     def main_simulation_runner():  # Renamed to avoid conflict if you import this script
-        cycle_params_loaded = load_cycle_parameters()  # Default filename
-        if cycle_params_loaded:
-            simulate_scbc_orc_cycle(cycle_params_loaded)
+        # 创建输出目录
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(script_dir)
+        output_dir = os.path.join(project_root, "output")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # 设置输出文件路径
+        output_file = os.path.join(output_dir, "full_cycle_simulator_output.txt")
+        
+        # 保存原始stdout
+        original_stdout = sys.stdout
+        
+        # 打开文件用于写入
+        with open(output_file, 'w', encoding='utf-8') as f:
+            # 创建一个同时写入到文件和终端的类
+            class TeeOutput:
+                def __init__(self, file, original_stdout):
+                    self.file = file
+                    self.original_stdout = original_stdout
+                
+                def write(self, text):
+                    self.file.write(text)
+                    self.original_stdout.write(text)
+                    self.file.flush()
+                    self.original_stdout.flush()
+                
+                def flush(self):
+                    self.file.flush()
+                    self.original_stdout.flush()
+            
+            # 重定向stdout到TeeOutput
+            sys.stdout = TeeOutput(f, original_stdout)
+            
+            try:
+                cycle_params_loaded = load_cycle_parameters()  # Default filename
+                if cycle_params_loaded:
+                    simulate_scbc_orc_cycle(cycle_params_loaded)
+            finally:
+                # 恢复原始stdout
+                sys.stdout = original_stdout
+                print(f"\n输出已同时保存到文件: {output_file}")
 
-
-    # To run directly and produce the output file:
-    # output_to_file("full_cycle_simulator_output.txt", main_simulation_runner)
-    # print("Simulation run complete. Output redirected to full_cycle_simulator_output.txt")
-
-    # Or for testing just the simulation logic directly:
+    # 运行主函数
     main_simulation_runner()

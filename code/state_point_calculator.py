@@ -98,6 +98,20 @@ class StatePoint:
             self.T, self.h, self.s, self.d, self.e = None, None, None, None, None
         return self
 
+    def props_from_TQ(self, T_K, Q_frac):
+        """根据温度和干度计算物性"""
+        self.T = T_K; self.q = Q_frac
+        try:
+            self.P = PropsSI('P', 'T', self.T, 'Q', self.q, self.fluid)
+            self.h = PropsSI('H', 'T', self.T, 'Q', self.q, self.fluid)
+            self.s = PropsSI('S', 'T', self.T, 'Q', self.q, self.fluid)
+            self.d = PropsSI('D', 'T', self.T, 'Q', self.q, self.fluid)
+            self._calculate_exergy()
+        except Exception as err:
+            print(f"计算T,Q物性时出错 {self.name} ({self.fluid}): {err}")
+            self.P, self.h, self.s, self.d, self.e = None, None, None, None, None
+        return self
+
     def __str__(self):
         P_str = f"{self.P/1e6:.3f}" if self.P is not None else "N/A"
         T_str = f"{self.T - 273.15:.2f}" if self.T is not None else "N/A"
@@ -236,52 +250,3 @@ if __name__ == "__main__":
     # --- (可选) 调用T0/P0反推函数 ---
     print("\n尝试执行T0/P0反推...")
     run_t0_p0_fitting() 
-
-    # --- 输出循环设定参数到JSON文件 ---
-    print("\n--- 正在输出循环设定参数到 cycle_setup_parameters.json ---")
-    cycle_parameters = {
-        "fluids": {"scbc": "CO2", "orc": "R245fa"},
-        "reference_conditions": {"T0_C": T0_CELSIUS, "P0_kPa": P0_KPA},
-        "scbc_parameters": {
-            "p1_compressor_inlet_kPa": 7400.0, "T1_compressor_inlet_C": 35.0,
-            "T5_turbine_inlet_C": 599.85, "PR_main_cycle_pressure_ratio": 3.27, # 更新为论文表8优化值
-            "eta_T_turbine": 0.9, "eta_C_compressor": 0.85, # 效率保持不变，除非表8有特定说明
-            "eta_H_HTR_effectiveness": 0.86, "eta_L_LTR_effectiveness": 0.86,
-            "T9_precooler_outlet_C": 84.38, # 添加预冷器出口温度点
-            "max_iter_scbc_main_loop": 20,
-            "tol_scbc_h_kJ_kg": 0.1,
-            "m_dot_total_main_flow_kg_s": 2641.42,
-            "m_dot_mc_branch_kg_s": 1945.09
-        },
-        "orc_parameters": {
-            # "T_turbine_inlet_C": 120.0, # 将由蒸发压力+过热度决定，或作为参考
-            # "PR_turbine_expansion_ratio": 3.0, # 将由蒸发和冷凝压力决定
-            "P_eva_kPa_orc": 1500.0,             # ORC蒸发压力, kPa (参考论文点09)
-            "T_pump_in_C_orc": 58.66,            # ORC泵进口温度, °C (参考论文点011)
-            "target_theta_w_orc_turbine_inlet_C": 127.76, # ORC透平入口目标温度, °C (参考论文点09)
-            "target_pr_orc_expansion_ratio": 3.37,        # ORC透平膨胀比目标值
-            "eta_TO_turbine": 0.8,
-            "eta_PO_pump": 0.75,
-            "max_iter_orc_mdot": 40,
-            "tol_orc_T_approach_K": 0.1,
-            "m_dot_orc_initial_guess_kg_s": 100.0
-        },
-        "heat_exchangers_common": {
-            "min_temp_diff_pinch_C": 10.0, # 通用最小温差约束
-            "approach_temp_eva_K_orc": 10 # GO中ORC侧出口与SCBC热源进口的最小接近温差 (可调整)
-        },
-        "notes": {
-            "phi_ER_MW_heat_input": 600.0,
-            "cost_fuel_cQ_dollar_per_MWh": 7.4 
-        }
-    }
-
-    params_filename = os.path.join(output_dir, "cycle_setup_parameters.json")
-    try:
-        with open(params_filename, 'w', encoding='utf-8') as f:
-            json.dump(cycle_parameters, f, ensure_ascii=False, indent=4)
-        print(f"循环设定参数已成功导出到: {params_filename}")
-    except Exception as e_json:
-        print(f"\n导出循环设定参数到JSON文件时出错: {e_json}")
-
-    print("\n--- 脚本执行完毕 ---")

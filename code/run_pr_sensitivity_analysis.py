@@ -103,7 +103,7 @@ def main():
             return
 
         # 2. 定义PR_scbc范围
-        pr_range = np.linspace(2.2, 4.0, 10)  # 从2.2到4.0，取10个点
+        pr_range = np.linspace(2.2, 4.0, 19)  # 从2.2到4.0，取10个点
         
         # 3. 创建结果存储结构
         results = []

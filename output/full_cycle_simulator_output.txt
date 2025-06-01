@@ -1,0 +1,202 @@
+成功从 /Users/zhouzhou/Desktop/edit/study/output/cycle_setup_parameters.json 加载循环参数。
+
+--- 开始SCBC/ORC联合循环仿真 (固定Q_ER, 迭代质量流量) ---
+目标吸热器热量 Q_ER_target: 600.00 MW
+
+--- 开始SCBC质量流量迭代 (目标Q_ER=600.00MW) ---
+质量流量迭代 1/20: 当前总流量 m_dot_total = 2641.42 kg/s
+  计算得到的 Q_ER_calc = 656.30 MW, 相对误差 = 9.38%
+质量流量迭代 2/20: 当前总流量 m_dot_total = 2528.12 kg/s
+  计算得到的 Q_ER_calc = 628.15 MW, 相对误差 = 4.69%
+质量流量迭代 3/20: 当前总流量 m_dot_total = 2471.47 kg/s
+  计算得到的 Q_ER_calc = 614.08 MW, 相对误差 = 2.35%
+质量流量迭代 4/20: 当前总流量 m_dot_total = 2443.15 kg/s
+  计算得到的 Q_ER_calc = 607.04 MW, 相对误差 = 1.17%
+质量流量迭代 5/20: 当前总流量 m_dot_total = 2428.99 kg/s
+  计算得到的 Q_ER_calc = 603.52 MW, 相对误差 = 0.59%
+质量流量迭代 6/20: 当前总流量 m_dot_total = 2421.91 kg/s
+  计算得到的 Q_ER_calc = 601.76 MW, 相对误差 = 0.29%
+质量流量迭代 7/20: 当前总流量 m_dot_total = 2418.37 kg/s
+  计算得到的 Q_ER_calc = 600.88 MW, 相对误差 = 0.15%
+质量流量迭代 8/20: 当前总流量 m_dot_total = 2416.60 kg/s
+  计算得到的 Q_ER_calc = 600.44 MW, 相对误差 = 0.07%
+质量流量迭代在 8 次后收敛。
+
+--- SCBC质量流量迭代结束 ---
+  最终总质量流量 m_dot_total: 2416.60 kg/s
+  最终主压气机支路流量 m_dot_mc_branch: 1779.53 kg/s
+  最终再压气机支路流量 m_dot_rc: 637.06 kg/s
+
+最终计算得到的SCBC状态点（质量流量和回热器均收敛后）:
+点 P1_MC_In:
+状态点: P1_MC_In_MFLOW_ITER (CO2)
+  P = 7.400 MPa
+  T = 35.00 °C
+  h = 402.40 kJ/kg
+  s = 1.6634 kJ/kgK
+  d = 259.77 kg/m³
+  e = 200.34 kJ/kg
+  Q = N/A
+  m_dot = 1779.53 kg/s
+点 P2_MC_Out:
+状态点: P1_MC_In_MFLOW_ITER (CO2)
+  P = 29.600 MPa
+  T = 137.07 °C
+  h = 465.61 kJ/kg
+  s = 1.6867 kJ/kgK
+  d = 523.10 kg/m³
+  e = 256.96 kJ/kg
+  Q = 过热/超临界
+  m_dot = 1779.53 kg/s
+点 P8r_RC_In:
+状态点: P8r_RC_In_RegenIter12 (CO2)
+  P = 7.400 MPa
+  T = 163.52 °C
+  h = 600.50 kJ/kg
+  s = 2.2179 kJ/kgK
+  d = 98.84 kg/m³
+  e = 241.68 kJ/kg
+  Q = 过热/超临界
+  m_dot = 637.06 kg/s
+点 P3'_RC_Out:
+状态点: P8r_RC_In_RegenIter12 (CO2)
+  P = 29.600 MPa
+  T = 326.78 °C
+  h = 745.83 kJ/kg
+  s = 2.2547 kJ/kgK
+  d = 263.70 kg/m³
+  e = 376.60 kJ/kg
+  Q = 过热/超临界
+  m_dot = 637.06 kg/s
+点 P3''_LTR_ColdOut:
+状态点: P1_MC_In_MFLOW_ITER_out_LTR_RegenIter12 (CO2)
+  P = 29.600 MPa
+  T = 302.58 °C
+  h = 714.23 kJ/kg
+  s = 2.2009 kJ/kgK
+  d = 279.27 kg/m³
+  e = 360.19 kJ/kg
+  Q = 过热/超临界
+  m_dot = 1779.53 kg/s
+点 P3_Mixed_HTR_ColdIn:
+状态点: P3_Mixed_RegenIter12 (CO2)
+  P = 29.600 MPa
+  T = 308.92 °C
+  h = 722.56 kJ/kg
+  s = 2.2153 kJ/kgK
+  d = 274.97 kg/m³
+  e = 364.46 kJ/kg
+  Q = 过热/超临界
+  m_dot = 2416.60 kg/s
+点 P4_HTR_ColdOut_ER_In:
+状态点: P3_Mixed_RegenIter12_out_HTR_RegenIter12 (CO2)
+  P = 29.600 MPa
+  T = 403.39 °C
+  h = 843.84 kJ/kg
+  s = 2.4085 kJ/kgK
+  d = 225.82 kg/m³
+  e = 431.13 kJ/kg
+  Q = 过热/超临界
+  m_dot = 2416.60 kg/s
+点 P5_ER_Out_Turbine_In:
+状态点: P3_Mixed_RegenIter12_out_HTR_RegenIter12_out_ER_RegenIter12 (CO2)
+  P = 29.600 MPa
+  T = 599.85 °C
+  h = 1092.30 kJ/kg
+  s = 2.7309 kJ/kgK
+  d = 168.81 kg/m³
+  e = 588.45 kJ/kg
+  Q = N/A
+  m_dot = 2416.60 kg/s
+点 P6_Turbine_Out_HTR_HotIn:
+状态点: P3_Mixed_RegenIter12_out_HTR_RegenIter12_out_ER_RegenIter12 (CO2)
+  P = 7.400 MPa
+  T = 431.56 °C
+  h = 904.93 kJ/kg
+  s = 2.7608 kJ/kgK
+  d = 55.53 kg/m³
+  e = 392.61 kJ/kg
+  Q = 过热/超临界
+  m_dot = 2416.60 kg/s
+点 P7_HTR_HotOut_LTR_HotIn:
+状态点: P3_Mixed_RegenIter11_out_HTR_RegenIter11_out_ER_RegenIter11_out_HTR_RegenIter12 (CO2)
+  P = 7.400 MPa
+  T = 326.09 °C
+  h = 783.65 kJ/kg
+  s = 2.5745 kJ/kgK
+  d = 66.41 kg/m³
+  e = 324.02 kJ/kg
+  Q = N/A
+  m_dot = 2416.60 kg/s
+点 P8_LTR_HotOut_Total:
+状态点: P3_Mixed_RegenIter10_out_HTR_RegenIter10_out_ER_RegenIter10_out_HTR_RegenIter11_out_LTR_RegenIter12 (CO2)
+  P = 7.400 MPa
+  T = 163.52 °C
+  h = 600.50 kJ/kg
+  s = 2.2179 kJ/kgK
+  d = 98.84 kg/m³
+  e = 241.68 kJ/kg
+  Q = N/A
+  m_dot = 2416.60 kg/s
+
+--- SCBC低温侧计算 (使用最终流量) ---
+
+蒸发器GO SCBC热侧进口状态 (点8m):
+状态点: P8_GO_HotIn_Final (CO2)
+  P = 7.400 MPa
+  T = 163.52 °C
+  h = 600.50 kJ/kg
+  s = 2.2179 kJ/kgK
+  d = 98.84 kg/m³
+  e = 241.68 kJ/kg
+  Q = 过热/超临界
+  m_dot = 1779.53 kg/s
+
+计算得到的蒸发器GO SCBC热侧出口状态 (点9):
+状态点: P8_GO_HotIn_Final_out_GO_SCBC_HotSide_Final (CO2)
+  P = 7.400 MPa
+  T = 88.03 °C
+  h = 508.61 kJ/kg
+  s = 1.9863 kJ/kgK
+  d = 137.12 kg/m³
+  e = 215.27 kJ/kg
+  Q = N/A
+  m_dot = 1779.53 kg/s
+蒸发器GO SCBC热侧放出热量 Q_GO_SCBC: 163.51 MW
+
+SCBC净输出功 (最终): 247.75 MW
+SCBC吸热器吸热量 Q_ER (最终): 600.44 MW
+SCBC热效率 (最终): 41.26%
+基于T5温度 599.85°C 的理论火用效率: 67.62%
+SCBC火用效率 (最终): 61.02%
+
+
+--- 开始ORC独立循环仿真 (使用SCBC最终换热数据) ---
+ORC工质: R245fa
+接收来自SCBC的热量 Q_eva_orc: 163.51 MW
+SCBC侧GO热源温度范围: 163.52°C (进口) to 88.03°C (出口)
+
+ORC主要参数 (从参数文件中读取或计算):
+  蒸发压力 P_eva: 1443.37 kPa
+  冷凝压力 P_cond: 428.30 kPa
+  泵进口温度 T_pump_in: 57.33 °C
+  目标过热度 delta_T_superheat: 21.73 K
+  泵效率 η_PO_pump: 0.75
+  透平效率 η_TO_turbine: 0.8
+信息: 将ORC泵进口 (点o1) 设置为在压力 428.30 kPa下的饱和液体状态 (Q=0)。
+
+--- ORC独立循环仿真完成 ---
+ORC净输出功: 13.54 MW
+ORC热效率: 8.28%
+ORC火用效率: 23.48%
+
+
+--- 联合循环总性能 ---
+SCBC净输出功: 247.75 MW
+ORC净输出功: 13.54 MW
+联合循环总净输出功: 261.28 MW
+DEBUG: Q_in_scbc_MW_final = 600.4398503358019
+DEBUG: W_net_combined_MW = 261.28051378761967
+DEBUG: T_er_source_K for exergy calc = 873.0
+联合循环总热效率: 43.51%
+联合循环总㶲效率: 64.36%

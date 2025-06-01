@@ -72,6 +72,17 @@ def plot_pr_sensitivity(csv_filepath=None, output_filename=None):
     ax1.set_xlabel("SCBC Pressure Ratio (PR_scbc)", fontsize=14)
     ax1.set_ylabel("Total Thermal Efficiency ηt (%)", color=color_efficiency, fontsize=14)
     line1 = ax1.plot(x_data, df["Total_Thermal_Efficiency_percent"], color=color_efficiency, marker='o', linestyle='-', label="Total Thermal Efficiency ηt (%)")
+    
+    # 标注总热效率最高点
+    best_eff_idx = df["Total_Thermal_Efficiency_percent"].idxmax()
+    best_eff_pr = df.loc[best_eff_idx, "PR_scbc"]
+    best_eff = df.loc[best_eff_idx, "Total_Thermal_Efficiency_percent"]
+    ax1.annotate(f"Max Thermal Efficiency: {best_eff:.2f}%\nPR = {best_eff_pr:.2f}", 
+                 xy=(best_eff_pr, best_eff),
+                 xytext=(20, -30), textcoords='offset points',
+                 arrowprops=dict(arrowstyle="->", color=color_efficiency),
+                 color=color_efficiency, fontsize=10)
+    
     ax1.tick_params(axis='y', labelcolor=color_efficiency, labelsize=12)
     ax1.tick_params(axis='x', labelsize=12)
 
@@ -88,11 +99,33 @@ def plot_pr_sensitivity(csv_filepath=None, output_filename=None):
     # 配置 ax2 (SCBC净功)
     ax2.set_ylabel("SCBC Net Power Ps (MW)", color=color_scbc_power, fontsize=14)
     line2 = ax2.plot(x_data, df["SCBC_Net_Power_MW"], color=color_scbc_power, marker='s', linestyle='--', label="SCBC Net Power Ps (MW)")
+    
+    # 标注SCBC净功最高点
+    best_scbc_idx = df["SCBC_Net_Power_MW"].idxmax()
+    best_scbc_pr = df.loc[best_scbc_idx, "PR_scbc"]
+    best_scbc = df.loc[best_scbc_idx, "SCBC_Net_Power_MW"]
+    ax2.annotate(f"Max SCBC Power: {best_scbc:.2f} MW\nPR = {best_scbc_pr:.2f}", 
+                 xy=(best_scbc_pr, best_scbc),
+                 xytext=(-100, 20), textcoords='offset points',
+                 arrowprops=dict(arrowstyle="->", color=color_scbc_power),
+                 color=color_scbc_power, fontsize=10)
+    
     ax2.tick_params(axis='y', labelcolor=color_scbc_power, labelsize=12)
 
     # 配置 ax3 (ORC净功)
     ax3.set_ylabel("ORC Net Power Po (MW)", color=color_orc_power, fontsize=14)
     line3 = ax3.plot(x_data, df["ORC_Net_Power_MW"], color=color_orc_power, marker='^', linestyle=':', label="ORC Net Power Po (MW)")
+    
+    # 标注ORC净功最高点
+    best_orc_idx = df["ORC_Net_Power_MW"].idxmax()
+    best_orc_pr = df.loc[best_orc_idx, "PR_scbc"]
+    best_orc = df.loc[best_orc_idx, "ORC_Net_Power_MW"]
+    ax3.annotate(f"Max ORC Power: {best_orc:.2f} MW\nPR = {best_orc_pr:.2f}", 
+                 xy=(best_orc_pr, best_orc),
+                 xytext=(20, 20), textcoords='offset points',
+                 arrowprops=dict(arrowstyle="->", color=color_orc_power),
+                 color=color_orc_power, fontsize=10)
+    
     ax3.tick_params(axis='y', labelcolor=color_orc_power, labelsize=12)
 
     # 统一Y轴刻度格式，例如保留两位小数
@@ -104,21 +137,17 @@ def plot_pr_sensitivity(csv_filepath=None, output_filename=None):
     plt.title("Effect of SCBC Pressure Ratio on Combined Cycle Performance (Triple Y-axes)", fontsize=16)
     
     # 合并图例
-    # 需要确保从正确的axes获取lines，或者直接使用plot返回的line对象
-    lines = line1 + line2 + line3 # line1, line2, line3 已被正确定义
+    lines = line1 + line2 + line3
     labels = [l.get_label() for l in lines]
-    # 调整图例位置和列数，可能需要根据实际显示效果微调
     ax1.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.20), fancybox=True, shadow=True, ncol=3, fontsize=10)
-
 
     # 6. 启用网格线
     ax1.grid(True, linestyle='--', alpha=0.7)
-    # 为ax2和ax3分别在Y轴上添加网格，避免与ax1的X轴网格重叠
     ax2.grid(True, linestyle='--', alpha=0.7, axis='y', color=color_scbc_power)
     ax3.grid(True, linestyle='--', alpha=0.7, axis='y', color=color_orc_power)
 
     # 调整布局以防止标签重叠
-    fig.tight_layout(rect=[0, 0.1, 1, 0.95]) # 调整rect以给图例留出空间
+    fig.tight_layout(rect=[0, 0.1, 1, 0.95])
 
     # 7. 显示和/或保存图表
     try:

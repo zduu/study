@@ -35,7 +35,7 @@
     },
     "heat_exchangers_common": {
         "min_temp_diff_pinch_C": 10.0,
-        "approach_temp_eva_K_orc": 5.0
+        "approach_temp_eva_K_orc": 10
     },
     "notes": {
         "phi_ER_MW_heat_input": 600.0,

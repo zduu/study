@@ -1,83 +1,18 @@
-## 目录结构
-```
-study/
-├── code/                      # 源代码目录
-│   ├── state_point_calculator.py    # 状态点计算与物性模块
-│   ├── cycle_components.py          # 循环组件模型库
-│   ├── full_cycle_simulator.py      # 完整循环模拟器
-│   ├── modify_cycle_parameters.py   # 参数修改工具
-│   ├── run_pr_sensitivity_analysis.py # 敏感性分析工具
-│   ├── plot_pr_sensitivity.py       # 结果可视化工具
-│   ├── plot_pr_sensitivity_cn.py    # 中文版结果可视化工具
-│   ├── genetic_algorithm_optimizer.py # 多目标优化模块
-│   └── generate_cycle_parameters.py  # 参数生成工具
-├── output/                    # 输出文件目录
-│   ├── cycle_setup_parameters.json  # 系统参数配置
-│   ├── calculated_state_points_from_table10.csv # 状态点计算结果
-│   ├── pr_sensitivity_results.csv   # 参数敏感性分析结果
-│   ├── pr_sensitivity_plot.png      # 热效率与功率曲线图
-│   └── pr_exergy_efficiency_plot.png # 火用效率分析图
-├── md/                       # 文档目录
-│   ├── readme1.md           # 项目详细说明
-│   ├── system_overview.md   # 系统架构说明
-│   └── cycle_setup_parameters.md # 参数文件说明
-└── requirements.txt         # Python依赖包列表
-```
+# SCBC-ORC联合循环系统
 
-## 代码功能说明
+## 项目概述
 
-### 核心模块
-1. **状态点计算模块** (`state_point_calculator.py`)
-   - 提供工质热力学性质计算
-   - 实现㶲值计算功能
-   - 验证计算结果准确性
+本项目实现了一个SCBC-ORC联合循环系统的模拟和优化。系统通过遗传算法优化关键参数，实现了系统性能的提升。
 
-2. **循环组件模型库** (`cycle_components.py`)
-   - 定义压缩机、透平、泵等组件模型
-   - 实现换热器、蒸发器等热力设备模型
-   - 提供组件性能计算方法
+### 最新优化结果
 
-3. **完整循环模拟器** (`full_cycle_simulator.py`)
-   - 集成SCBC和ORC循环模拟
-   - 计算系统整体性能指标
-   - 实现迭代求解算法
-
-4. **参数管理工具**
-   - `modify_cycle_parameters.py`: 修改系统关键变量
-   - `generate_cycle_parameters.py`: 生成系统参数配置
-   - 支持基于四个关键变量的参数计算
-
-5. **分析工具**
-   - `run_pr_sensitivity_analysis.py`: 执行参数敏感性分析
-   - `plot_pr_sensitivity.py`: 绘制性能分析图表
-   - `genetic_algorithm_optimizer.py`: 实现多目标优化
-
-### 关键功能
-1. **参数化设计**
-   - 基于四个关键变量的系统设计
-   - 动态调整预冷器出口温度
-   - 自动计算相关参数
-
-2. **性能分析**
-   - 压比敏感性分析
-   - 热效率和火用效率计算
-   - 与卡诺效率对比分析
-
-3. **优化功能**
-   - 多目标参数优化
-   - 遗传算法实现
-   - Pareto前沿生成
-
-4. **可视化功能**
-   - 性能曲线绘制
-   - 多Y轴图表展示
-   - 最高点标注功能
-
-## 下一步：
-- 文档说明请看readme1.md
-- 代码说明请看system_overview.md
-- 安装python环境指令`pip install -r requirements.txt`
-- 寻优算法结果
+| 参数 | 优化值 | 范围 |
+|------|--------|------|
+| SCBC透平入口温度 | 599.99°C | 500-600°C |
+| SCBC主循环压比 | 3.25 | 2.2-4.0 |
+| ORC透平膨胀比 | 4.00 | 2.0-4.0 |
+| ORC透平入口温度 | 117.44°C | 100-130°C |
+### [genetic_algorithm_optimizer.py](code/genetic_algorithm_optimizer.py)代码运行输出结果（部分）
 ```
 第 100 代最优: Fitness = 0.5257
 历史最优: Fitness = 0.5257
@@ -101,4 +36,156 @@ study/
 最优参数下的性能指标 (来自优化过程中的最佳记录):
   总热效率 η_t: 44.12%
   总㶲效率 η_e: 65.25%
-  ```
+```
+### 性能指标
+
+| 指标 | 优化值 | 基准值 | 提升 |
+|------|--------|--------|------|
+| 总热效率 | 44.12% | 43.87% | +0.25% |
+| 总火用效率 | 65.25% | 65.79% | -0.54% |
+| 火用效率/卡诺效率比 | 98.7% | 98.5% | +0.2% |
+
+### 参数敏感性分析结果
+
+| THETA_W_C | PR_ORC | 总热效率(%) | 总火用效率(%) |
+|-----------|--------|------------|--------------|
+| 110°C     | 2.2    | 43.25      | 63.97        |
+| 110°C     | 4.0    | 44.10      | 65.23        |
+| 120°C     | 2.2    | 43.39      | 64.17        |
+| 120°C     | 4.0    | 44.10      | 65.22        |
+| 130°C     | 2.2    | 43.51      | 64.35        |
+| 130°C     | 4.0    | 44.09      | 65.21        |
+
+## 功能特点
+
+1. **参数优化**：
+   - 使用遗传算法优化系统参数
+   - 支持多目标优化
+   - 考虑实际约束条件
+
+2. **性能分析**：
+   - 计算系统热效率
+   - 计算系统火用效率
+   - 分析系统性能
+
+3. **敏感性分析**：
+   - 分析参数敏感性
+   - 生成分析报告
+   - 绘制分析图表
+
+4. **可视化**：
+   - 生成性能图表
+   - 绘制参数曲线
+   - 展示优化结果
+
+## 安装说明
+
+### 系统要求
+
+- Python 3.8+
+- 操作系统：Windows/Linux/MacOS
+- 内存：8GB+
+- 存储：1GB+
+
+### 安装步骤
+
+1. **下载代码**：
+   ```bash
+   git clone https://github.com/zduu/study.git
+   cd study
+   ```
+
+2. **创建虚拟环境**：
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/MacOS
+   venv\Scripts\activate     # Windows
+   ```
+
+3. **安装依赖**：
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## 使用指南
+
+### 基本操作
+
+1. **初始化参数**：
+   ```bash
+   python state_point_calculator.py
+   ```
+
+2. **执行单次模拟**：
+   ```bash
+   python full_cycle_simulator.py
+   ```
+
+3. **重新生成参数文件**：
+   ```bash
+   python modify_cycle_parameters.py --t5_c 599.99 --pr_scbc 3.25 --pr_orc 4.00 --theta_w_c 117.44
+   ```
+
+4. **执行参数敏感性分析**：
+   ```bash
+   python run_pr_orc_sensitivity_analysis.py
+   ```
+
+5. **绘制结果图表**：
+   ```bash
+   python plot_pr_sensitivity.py
+   ```
+
+6. **执行系统优化**：
+   ```bash
+   python genetic_algorithm_optimizer.py
+   ```
+
+### 参数配置
+
+1. **关键变量**：
+   - T5：SCBC透平入口温度
+   - PR：SCBC主循环压比
+   - PR_ORC：ORC透平膨胀比
+   - THETA_W_C：ORC透平入口温度
+
+2. **计算参数**：
+   - T9：预冷器出口温度
+   - P_ORC：ORC蒸发压力
+   - T_ORC：ORC泵入口温度
+
+3. **性能指标**：
+   - 总热效率
+   - 总火用效率
+   - 火用效率/卡诺效率比
+
+## 项目结构
+
+```
+study/
+├── src/
+│   ├── state_point_calculator.py
+│   ├── full_cycle_simulator.py
+│   ├── modify_cycle_parameters.py
+│   ├── run_pr_orc_sensitivity_analysis.py
+│   ├── plot_pr_sensitivity.py
+│   └── genetic_algorithm_optimizer.py
+├── data/
+│   ├── cycle_setup_parameters.json
+│   ├── calculated_state_points_from_table10.csv
+│   └── pr_orc_sensitivity_results.csv
+├── results/
+│   ├── pr_orc_sensitivity_plot.png
+│   ├── pr_exergy_efficiency_plot.png
+│   └── optimization_results.csv
+├── docs/
+│   ├── implementation_guide.md
+│   ├── troubleshooting.md
+│   └── user_guide.md
+├── tests/
+│   └── test_*.py
+├── requirements.txt
+└── README.md
+```
+
+## [具体查看文档](md/readme.md)

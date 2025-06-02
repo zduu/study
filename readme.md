@@ -111,36 +111,6 @@
 
 ### 基本操作
 
-1. **初始化参数**：
-   ```bash
-   python state_point_calculator.py
-   ```
-
-2. **执行单次模拟**：
-   ```bash
-   python full_cycle_simulator.py
-   ```
-
-3. **重新生成参数文件**：
-   ```bash
-   python modify_cycle_parameters.py --t5_c 599.99 --pr_scbc 3.25 --pr_orc 4.00 --theta_w_c 117.44
-   ```
-
-4. **执行参数敏感性分析**：
-   ```bash
-   python run_pr_orc_sensitivity_analysis.py
-   ```
-
-5. **绘制结果图表**：
-   ```bash
-   python plot_pr_sensitivity.py
-   ```
-
-6. **执行系统优化**：
-   ```bash
-   python genetic_algorithm_optimizer.py
-   ```
-
 ### 参数配置
 
 1. **关键变量**：
@@ -160,32 +130,5 @@
    - 火用效率/卡诺效率比
 
 ## 项目结构
-
-```
-study/
-├── src/
-│   ├── state_point_calculator.py
-│   ├── full_cycle_simulator.py
-│   ├── modify_cycle_parameters.py
-│   ├── run_pr_orc_sensitivity_analysis.py
-│   ├── plot_pr_sensitivity.py
-│   └── genetic_algorithm_optimizer.py
-├── data/
-│   ├── cycle_setup_parameters.json
-│   ├── calculated_state_points_from_table10.csv
-│   └── pr_orc_sensitivity_results.csv
-├── results/
-│   ├── pr_orc_sensitivity_plot.png
-│   ├── pr_exergy_efficiency_plot.png
-│   └── optimization_results.csv
-├── docs/
-│   ├── implementation_guide.md
-│   ├── troubleshooting.md
-│   └── user_guide.md
-├── tests/
-│   └── test_*.py
-├── requirements.txt
-└── README.md
-```
 
 ## [具体查看文档](md/README.md)

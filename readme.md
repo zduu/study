@@ -188,4 +188,4 @@ study/
 └── README.md
 ```
 
-## [具体查看文档](/md/readme.md)
+## [具体查看文档](md/README.md)

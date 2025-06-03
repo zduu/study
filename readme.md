@@ -207,20 +207,28 @@ study/
 │   ├── plot_pr_sensitivity_cn.py        # 中文版压力比敏感性分析绘图
 │   ├── run_pr_orc_sensitivity_analysis.py  # ORC压力比敏感性分析
 │   ├── run_pr_sensitivity_analysis.py   # 压力比敏感性分析
-│   ├── state_point_calculator.py        # 系统状态点计算器
-│   └── requirements.txt                 # 代码依赖文件
+│   └── state_point_calculator.py        # 系统状态点计算器
 ├── md/                                  # 文档目录
 │   ├── cycle_setup_parameters.md        # 循环参数设置文档
 │   ├── system_overview.md               # 系统概述文档
 │   └── replication_overview.md          # 论文复现工作概述
 ├── output/                              # 输出目录
-│   ├── figures/                         # 图表输出
-│   ├── data/                            # 数据输出
-│   └── reports/                         # 报告输出
+│   ├── pr_orc_sensitivity_plot.png        # ORC压力比敏感性分析图
+│   ├── pr_orc_sensitivity_results.csv     # ORC压力比敏感性分析结果数据
+│   ├── ga_optimization_log.csv            # 遗传算法优化过程日志
+│   ├── full_cycle_simulator_output.txt    # 完整循环模拟输出结果
+│   ├── cycle_setup_parameters.json        # 循环参数设置文件
+│   ├── pr_exergy_efficiency_plot.png      # 压力比-火用效率关系图
+│   ├── pr_sensitivity_plot.png            # 压力比敏感性分析图
+│   ├── pr_exergy_efficiency_plot_cn.png   # 压力比-火用效率关系图(中文版)
+│   ├── pr_sensitivity_plot_cn.png         # 压力比敏感性分析图(中文版)
+│   ├── pr_sensitivity_results.csv         # 压力比敏感性分析结果数据
+│   ├── cycle_components_output.txt        # 循环组件分析输出结果
+│   └── calculated_state_points_from_table10.csv  # 从表10计算的状态点数据
 ├── 资料/                                # 参考资料
 ├── .gitignore                           # Git忽略文件
 ├── readme.md                            # 项目说明文档
-└── requirements.txt                     # 项目依赖文件
+└── requirements.txt                     # 项目依赖文件，包含主要与可选依赖包
 ```
 
 ## 技术细节

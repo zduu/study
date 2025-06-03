@@ -1,15 +1,24 @@
+# 主要依赖
 numpy>=1.21.0
 pandas>=1.3.0
 matplotlib>=3.4.0
 scipy>=1.7.0
-deap>=1.3.0
-tqdm>=4.62.0
-pyyaml>=5.4.0
-coolprop>=6.4.0
-pytest>=6.2.0
-pytest-cov>=2.12.0
-black>=21.5b2
-flake8>=3.9.0
-mypy>=0.910
-sphinx>=4.0.0
-sphinx-rtd-theme>=0.5.0 
+coolprop>=6.4.0  # 热力学物性计算库
+deap>=1.3.0  # 遗传算法库
+tqdm>=4.62.0  # 进度条显示
+
+# 可选依赖
+pyyaml>=5.4.0  # 配置文件支持
+seaborn>=0.11.0  # 增强图表美化
+scikit-learn>=1.0.0  # 数据分析
+
+# 开发工具
+pytest>=6.2.0  # 单元测试
+pytest-cov>=2.12.0  # 测试覆盖率
+black>=21.5b2  # 代码格式化
+flake8>=3.9.0  # 代码检查
+mypy>=0.910  # 类型检查
+
+# 文档工具
+sphinx>=4.0.0  # 文档生成
+sphinx-rtd-theme>=0.5.0  # 文档主题 

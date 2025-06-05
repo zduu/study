@@ -116,7 +116,7 @@ def calculate_parameters_from_key_variables(new_t5_c, new_pr_scbc, new_pr_orc, n
         new_t5_c (float): 新的SCBC透平入口温度 (°C)
         new_pr_scbc (float): 新的SCBC主循环压比
         new_pr_orc (float): 新的ORC透平膨胀比
-        new_theta_w_orc_c (float): 新的ORC透平入口温度 (°C)
+        new_theta_w_orc_c (float): 新的ORC涡轮机入口温度 (°C)
     """
     # 创建临时状态点用于计算
     scbc_state = StatePoint("CO2", "temp")
@@ -216,7 +216,7 @@ def generate_cycle_parameters(scbc_states=None, key_variables=None):
             - new_t5_c: SCBC透平入口温度 (°C)
             - new_pr_scbc: SCBC主循环压比
             - new_pr_orc: ORC透平膨胀比
-            - new_theta_w_orc_c: ORC透平入口温度 (°C)
+            - new_theta_w_orc_c: ORC涡轮机入口温度 (°C)
     """
     try:
         if key_variables:

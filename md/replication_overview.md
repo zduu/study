@@ -198,7 +198,7 @@ class StatePoint:
   variables = [
       {"name": "theta_5_c", "min": 500.0, "max": 600.0},  # SCBC透平入口温度(°C)
       {"name": "pr_scbc", "min": 2.2, "max": 4.0},        # SCBC主循环压比
-      {"name": "theta_w_c", "min": 100.0, "max": 130.0},  # ORC透平入口温度(°C)
+      {"name": "theta_w_c", "min": 100.0, "max": 130.0},  # ORC涡轮机入口温度(°C)
       {"name": "pr_orc", "min": 2.0, "max": 4.0}          # ORC透平膨胀比
   ]
   ```
@@ -260,7 +260,7 @@ for pr in pr_values:
     params = {
         "theta_5_c": 599.99,  # 固定透平入口温度
         "pr_scbc": pr,        # 变化的压比
-        "theta_w_c": 117.44,  # 固定ORC透平入口温度
+        "theta_w_c": 117.44,  # 固定ORC涡轮机入口温度
         "pr_orc": 4.0         # 固定ORC膨胀比
     }
     
@@ -298,7 +298,7 @@ new_T9_C = base_T9_C + sensitivity_factor * (new_pr_scbc - base_PR)
 | SCBC透平入口温度 | 600.00°C | 599.99°C | -0.01°C |
 | SCBC主循环压比 | 3.25 | 3.25 | 0% |
 | ORC透平膨胀比 | 4.00 | 4.00 | 0% |
-| ORC透平入口温度 | 117.50°C | 117.44°C | -0.06°C |
+| ORC涡轮机入口温度 | 117.50°C | 117.44°C | -0.06°C |
 | 总热效率 | 44.14% | 44.12% | -0.02% |
 | 总㶲效率 | 65.23% | 65.25% | +0.02% |
 
@@ -333,7 +333,7 @@ new_T9_C = base_T9_C + sensitivity_factor * (new_pr_scbc - base_PR)
 
 分析结果表明：
 - ORC循环膨胀比(PR_ORC)增大导致热效率提高，但达到4.0后增加幅度趋于平缓
-- ORC透平入口温度(THETA_W_C)在110-130°C范围内对系统性能影响较小
+- ORC涡轮机入口温度(THETA_W_C)在110-130°C范围内对系统性能影响较小
 - 这些结果与原论文的结论基本一致，验证了论文的分析结果
 
 ### 4.3 误差来源分析

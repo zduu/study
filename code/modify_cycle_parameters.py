@@ -10,7 +10,7 @@ def generate_cycle_parameters(new_t5_c, new_pr_scbc, new_pr_orc, new_theta_w_orc
         new_t5_c (float): 新的SCBC透平入口温度 (°C)
         new_pr_scbc (float): 新的SCBC主循环压比
         new_pr_orc (float): 新的ORC透平膨胀比
-        new_theta_w_orc_c (float): 新的ORC透平入口温度 (°C)
+        new_theta_w_orc_c (float): 新的ORC涡轮机入口温度 (°C)
     """
     # 参数边界检查
     if not (500 <= new_t5_c <= 600):
@@ -20,7 +20,7 @@ def generate_cycle_parameters(new_t5_c, new_pr_scbc, new_pr_orc, new_theta_w_orc
         print(f"错误: SCBC主循环压比 new_pr_scbc ({new_pr_scbc}) 超出允许范围 [2.2, 4.0]。")
         return None
     if not (100 <= new_theta_w_orc_c <= 130):
-        print(f"错误: ORC透平入口温度 new_theta_w_orc_c ({new_theta_w_orc_c}°C) 超出允许范围 [100, 130]°C。")
+        print(f"错误: ORC涡轮机入口温度 new_theta_w_orc_c ({new_theta_w_orc_c}°C) 超出允许范围 [100, 130]°C。")
         return None
     if not (2.2 <= new_pr_orc <= 4.0):
         print(f"错误: ORC透平膨胀比 new_pr_orc ({new_pr_orc}) 超出允许范围 [2.2, 4.0]。")
@@ -127,7 +127,7 @@ def update_cycle_parameters(
         new_t5_c (float): 新的SCBC透平入口温度 (°C)。
         new_pr_scbc (float): 新的SCBC主循环压比。
         new_pr_orc (float): 新的ORC透平膨胀比。
-        new_theta_w_orc_c (float): 新的ORC透平入口温度 (°C)。
+        new_theta_w_orc_c (float): 新的ORC涡轮机入口温度 (°C)。
         params_filepath (str): 参数JSON文件的路径。
     """
     try:
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     parser.add_argument("--t5_c", type=float, required=True, help="新的SCBC透平入口温度 (°C)")
     parser.add_argument("--pr_scbc", type=float, required=True, help="新的SCBC主循环压比")
     parser.add_argument("--pr_orc", type=float, required=True, help="新的ORC透平膨胀比")
-    parser.add_argument("--theta_w_c", type=float, required=True, help="新的ORC透平入口温度 (°C)")
+    parser.add_argument("--theta_w_c", type=float, required=True, help="新的ORC涡轮机入口温度 (°C)")
 
     args = parser.parse_args()
 

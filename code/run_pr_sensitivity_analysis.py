@@ -13,7 +13,7 @@ from full_cycle_simulator import load_cycle_parameters, simulate_scbc_orc_cycle,
 # 1. 定义固定的核心参数
 T5_C = 599.85  # SCBC透平入口温度 (°C)
 PR_ORC = 3.37  # ORC透平膨胀比
-THETA_W_C = 127.76  # ORC透平入口温度 (°C)
+THETA_W_C = 127.76  # ORC涡轮机入口温度 (°C)
 
 # 2. 定义 PR_scbc 的扫描范围
 # 从 2.2 到 4.0 (包含边界)，步长为 0.1
